@@ -4,6 +4,9 @@ import requests
 import sys
 import optparse
 
+
+# To run, im cmd paste --> python api.py --app_id 5ed84734 --app_key fb1ef20925bb1ad66d7a874fd0eab80b
+
 def callPublicFlightAPI(options):
     url = 'https://api.schiphol.nl/public-flights/flights'
 
