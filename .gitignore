@@ -1,2 +1,4 @@
 ### specify files and folders to exclude from version control ###
 output.json
+backend/__pycache__/app.cpython-310.pyc
+backend/tests/__pycache__/test_tests.cpython-310-pytest-7.4.4.pyc
