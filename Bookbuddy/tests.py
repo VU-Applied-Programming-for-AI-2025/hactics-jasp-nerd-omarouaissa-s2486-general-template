@@ -1,12 +1,14 @@
+from django.test import TestCase
+
+# Create your tests here.
 ### first backend tests file ###
 import requests
 import pytest
 import sys
 
 #Allows us to import from the backend folder itself
-sys.path.insert(1, 'backend')
 
-from app import book_search
+from apps import book_search
 
 
 
