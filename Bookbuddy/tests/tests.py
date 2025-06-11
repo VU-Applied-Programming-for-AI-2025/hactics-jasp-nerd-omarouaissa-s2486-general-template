@@ -96,7 +96,7 @@ class SearchTests(unittest.TestCase):
  
     def test_api_response(self):
         # This tests that the api give a 200 (ok) status code
-        self.assertEqual(requests.request("GET", "https://www.googleapis.com/books/v1/volumes?q=flowers+inauthor:keyes&key=AIzaSyAI8gKE3AQCSaGhCigcNXRq57OOWmHaT-g").status_code, 200)
+        self.assertEqual(requests.request("GET", f"https://www.googleapis.com/books/v1/volumes?q=flowers+inauthor:keyes&key={os.environ["API_KEY"]}").status_code, 200)
 
     def test_filter_search(self):
         pass
@@ -114,6 +114,7 @@ class SearchTests(unittest.TestCase):
         assert len(result_list) > 0
         assert "volumeInfo" in result_list[0]
 
+    
 class FilterTests(unittest.TestCase):
 
     def test_addition(self):

@@ -1,4 +1,5 @@
 from django.apps import AppConfig
+import os
 
 
 class BookAppConfig(AppConfig):
@@ -7,3 +8,4 @@ class BookAppConfig(AppConfig):
 
 def book_search(query):
     return "testtt"
+
