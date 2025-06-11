@@ -114,6 +114,26 @@ class tests(unittest.TestCase):
         self.assertRaises(IndexError, self.book_list.get_book_by_id, 0)
 
 
+    # def test_load_json_book_list(self):
+    #     '''
+    #     Tests the load_json function of the BookList class.
+    #     '''
+    #     self.book_list.clear_book_list()
+
+    #     book = Book()
+    #     self.book_list.add_book(book)
+
+    #     json_books = {
+    #         "user": "name",
+    #         "books": [book]
+    #     }
+
+
+    # def test_get_json_book_list(self):
+    #     '''
+    #     Tests the get_json function of the BookList class.
+    #     '''
+
 
 
 if __name__ == "__main__":
