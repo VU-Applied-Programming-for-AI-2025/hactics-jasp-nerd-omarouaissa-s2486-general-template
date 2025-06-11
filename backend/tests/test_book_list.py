@@ -1,6 +1,11 @@
 import unittest
 from typing import List
 
+# import sys
+# sys.path.insert(1, 'backend')
+
+from book_list import BookList, Book
+
 class tests(unittest.TestCase):
 
     def setUp(self) -> None:
