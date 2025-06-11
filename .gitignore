@@ -2,3 +2,8 @@
 output.json
 backend/__pycache__/app.cpython-310.pyc
 backend/tests/__pycache__/test_tests.cpython-310-pytest-7.4.4.pyc
+backend/__pycache__/__init__.cpython-312.pyc
+backend/__pycache__/settings.cpython-312.pyc
+Bookbuddy/__pycache__/__init__.cpython-312.pyc
+Bookbuddy/__pycache__/tests.cpython-312-pytest-8.4.0.pyc
+Bookbuddy/__pycache__/apps.cpython-312.pyc
