@@ -31,13 +31,23 @@ class tests(unittest.TestCase):
         '''
         Tests the remove_book_by_index function of the BookList class.
         '''
-        pass
+        self.book_list.add_book(Book())
+        self.book_list.remove_book_by_index(1)
+        self.assertEqual(self.book_list.books, [])
+
+        self.assertRaises(IndexError, self.book_list.remove_book_by_index, 1)
+
+
 
     def test_remove_book_by_object_from_list(self):
         '''
         Tests the remove_book_by_object function of the BookList class.
         '''
-        pass
+        self.book_list.add_book(Book())
+        self.book_list.remove_book_by_object(Book())
+        self.assertEqual(self.book_list.books, [])
+
+        self.assertRaises(IndexError, self.book_list.remove_book_by_object, Book())
 
     def test_get_book_list(self):
         '''
@@ -56,7 +66,16 @@ class tests(unittest.TestCase):
         '''
         Tests the get_book_by_id function of the BookList class.
         '''
-        pass
+        self.book_list.add_book(Book())
+        self.assertEqual(self.book_list.get_book_by_id(1), Book())
+
+    def test_clear_book_list(self):
+        '''
+            Tests the clear_book_list function of the BookList class.
+        '''
+        self.book_list.clear_book_list()
+        self.assertEqual(self.books, [])
+
 
 if __name__ == "__main__":
     unittest.main
