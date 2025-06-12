@@ -29,7 +29,7 @@ class BookList():
         '''
         return f"{self.books}"
 
-    def add_book(self, book_id: int) -> None:
+    def add_book(self, book_id: str) -> None:
         '''
         Adds a book object to the list.
         Args:
