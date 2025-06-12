@@ -1,10 +1,14 @@
 from typing import List
 
 
-class Book():
-    '''
-    Placeholder class for book.
-    '''
+# class Book():
+#     '''
+#     Placeholder class for book.
+#     '''
+
+'''
+The book list class stores all the book ids, 
+'''
 
 
 class BookList():
@@ -16,7 +20,7 @@ class BookList():
         '''
         Initializes a book_list object.
         '''
-        self.books: List[Book] = []
+        self.books: List[int] = [] # stores the book ids
         self.user_token: str = ""
 
     def __str__(self) -> str:
@@ -27,16 +31,16 @@ class BookList():
         '''
         return f"{self.books}"
 
-    def add_book(self, book: Book) -> None:
+    def add_book(self, book_id: int) -> None:
         '''
         Adds a book object to the list.
         Args:
             book: Book object to be added.
         '''
-        if type(book) != Book:
+        if type(book_id) != int:
             raise TypeError("Book object should be given")
 
-        self.books.append(book)
+        self.books.append(book_id)
 
     def remove_book_by_id(self, id: int) -> None:
         '''
