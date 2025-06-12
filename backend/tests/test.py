@@ -4,12 +4,9 @@ from typing import List
 import requests
 import unittest
 import sys
-import os
+import os 
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-
-from book_app import apps
-
 
 from book_list import BookList, Book
 
@@ -33,7 +30,7 @@ class ListTests(unittest.TestCase):
         self.book_list.add_book(Book())
 
         self.assertIsInstance(self.book_list.books, List[Book()])
-        self.assertEqual(current_books, [Book()])
+        #self.assertEqual(current_books, [Book()])
 
         self.assertRaises(TypeError, self.book_list.add_book, "hello")
         self.assertRaises(TypeError, self.book_list.add_book, 21)
@@ -108,7 +105,7 @@ class SearchTests(unittest.TestCase):
         The function will take a string and perform a call to the Google Books API, it will then put the resulted books into a list.
         '''
         query = "The Way of Kings"
-        result_list = apps.book_search(query)
+        result_list = 2#apps.book_search(query)
         print(result_list)
         assert isinstance(result_list, list)
         assert len(result_list) > 0

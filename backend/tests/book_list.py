@@ -20,6 +20,7 @@ class BookList():
         '''
         Initializes a book_list object.
         '''
+<<<<<<< HEAD
         self.books: List[int] = [] # stores the book ids
         self.user_token: str = ""
 
@@ -30,6 +31,9 @@ class BookList():
             str
         '''
         return f"{self.books}"
+=======
+        pass
+>>>>>>> 9840dc9a1a55ece5064fa817f4209169f74dbbc6
 
     def add_book(self, book_id: int) -> None:
         '''
@@ -37,10 +41,14 @@ class BookList():
         Args:
             book: Book object to be added.
         '''
+<<<<<<< HEAD
         if type(book_id) != int:
             raise TypeError("Book object should be given")
 
         self.books.append(book_id)
+=======
+        pass
+>>>>>>> 9840dc9a1a55ece5064fa817f4209169f74dbbc6
 
     def remove_book_by_id(self, id: int) -> None:
         '''
@@ -48,14 +56,6 @@ class BookList():
         Args:
             id: int
         '''
-        if type(id) != int:
-            raise TypeError("Book object should be given")
-        
-        if id > len(self.books):
-            raise ValueError("Index of list books out of range")
-        
-        self.books.pop(id)
-
 
     def remove_book_by_object(self, book: Book) -> None:
         '''
@@ -63,13 +63,6 @@ class BookList():
         Args:
             book: Book
         '''
-        if type(book) != Book:
-            raise TypeError("Book object should be given")
-
-        if not book in self.books:
-            raise ValueError("Book object not in list of books")
-
-        self.books.remove(book)
 
     def get_book_list(self) -> List[Book]:
         '''
@@ -77,29 +70,8 @@ class BookList():
         Returns:
             list of books.
         '''
-        return self.books
-
-    def get_book_by_id(self, id: int) -> Book:
-        '''
-        Returns a book from the list by the given id.
-        Args:
-            id: int
-        Returns:
-            Book
-        '''
-        if id > len(self.books):
-            raise ValueError("Index of list books out of range")
-
-        return self.books[id]
 
     def clear_book_list(self) -> None:
         '''
         Removes all books from the list.
         '''
-
-        self.books = []
-
-
-favorites = BookList()
-read_books = BookList()
-want_to_read = BookList()
