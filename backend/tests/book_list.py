@@ -1,6 +1,5 @@
 from typing import List
 
-
 # class Book():
 #     '''
 #     Placeholder class for book.
@@ -9,7 +8,6 @@ from typing import List
 '''
 The book list class stores all the book ids, 
 '''
-
 
 class BookList():
     '''
@@ -20,7 +18,6 @@ class BookList():
         '''
         Initializes a book_list object.
         '''
-<<<<<<< HEAD
         self.books: List[int] = [] # stores the book ids
         self.user_token: str = ""
 
@@ -31,47 +28,76 @@ class BookList():
             str
         '''
         return f"{self.books}"
-=======
-        pass
->>>>>>> 9840dc9a1a55ece5064fa817f4209169f74dbbc6
 
     def add_book(self, book_id: int) -> None:
         '''
         Adds a book object to the list.
         Args:
-            book: Book object to be added.
+            book id: book id to be added.
         '''
-<<<<<<< HEAD
-        if type(book_id) != int:
-            raise TypeError("Book object should be given")
+        if type(book_id) != str:
+            raise TypeError("Book_id should be given")
 
         self.books.append(book_id)
-=======
-        pass
->>>>>>> 9840dc9a1a55ece5064fa817f4209169f74dbbc6
 
-    def remove_book_by_id(self, id: int) -> None:
+    def remove_book_by_index(self, index: int) -> None:
         '''
-        Removes a book from the list by id.
+        Removes a book from the list by index.
         Args:
-            id: int
+            index: int
         '''
+        if type(index) != int:
+            raise TypeError("Book_id should be given")
+        
+        if index > len(self.books):
+            raise ValueError("Index of list books out of range")
+        
+        self.books.pop(index)
 
-    def remove_book_by_object(self, book: Book) -> None:
+
+    def remove_book_by_id(self, book_id: str) -> None:
         '''
-        Removes a book from the list by a given book object.
+        Removes a book from the list by a given book id.
         Args:
-            book: Book
+            book_id: str
         '''
+        if type(book_id) != str:
+            raise TypeError("Book_id should be given")
 
-    def get_book_list(self) -> List[Book]:
+        if not book_id in self.books:
+            raise ValueError("Book_id not in list of books")
+        else:
+            self.books.remove(book_id)
+
+    def get_book_list(self) -> List[str]:
         '''
         Returns the book list.
         Returns:
             list of books.
         '''
+        return self.books
+
+    def get_book_by_index(self, index: int) -> str:
+        '''
+        Returns a book from the list by the given index.
+        Args:
+            index: int
+        Returns:
+            book id: str
+        '''
+        if index > len(self.books):
+            raise ValueError("Index of list books out of range")
+
+        return self.books[index]
 
     def clear_book_list(self) -> None:
         '''
         Removes all books from the list.
         '''
+
+        self.books = []
+
+
+favorites = BookList()
+read_books = BookList()
+want_to_read = BookList()
