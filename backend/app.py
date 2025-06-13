@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+import requests
+
 # Run website --> python backend/app.py in cmd
 
 app = Flask(__name__)
@@ -9,7 +11,26 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bookbuddy.db'
 db = SQLAlchemy(app)
 
 class Favorite(db.Model):
-    # id = db.Column(db.Integer, primary_key=True)
+    user = db.Column(db.Integer, primary_key=True)
+    book_list_id = db.Column(db.JSON)
+
+    def to_dict(self):
+        return {
+            "user": self.user,
+            "book_list_id": self.book_list_id
+        }
+    
+class ReadBooks(db.Model):
+    user = db.Column(db.Integer, primary_key=True)
+    book_list_id = db.Column(db.JSON)
+
+    def to_dict(self):
+        return {
+            "user": self.user,
+            "book_list_id": self.book_list_id
+        }
+    
+class WantToRead(db.Model):
     user = db.Column(db.Integer, primary_key=True)
     book_list_id = db.Column(db.JSON)
 
@@ -29,6 +50,7 @@ def home():
     return jsonify({"message": "Welcome to BookBuddy"})
 
 
+#region favorite app routes
 @app.route("/favorites", methods=["GET"])
 def get_favorites():
     favorites = Favorite.query.all()
@@ -81,7 +103,13 @@ def delete_favorites(user_id):
         return jsonify({"message": "favorite was deleted"})
     else:
         return jsonify({"error": "favorite not found"}), 404
+    
+#endregion
 
+@app.route("/get_book/<string:book_id>", methods=["GET"])
+def get_book_by_id(book_id):
+    book_request = requests.get(f"https://www.googleapis.com/books/v1/volumes/{book_id}")
+    return book_request.json()
 
 
 
