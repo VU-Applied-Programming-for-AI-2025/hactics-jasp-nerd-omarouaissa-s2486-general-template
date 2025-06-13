@@ -11,6 +11,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bookbuddy.db'
 db = SQLAlchemy(app)
 
 class Favorite(db.Model):
+    '''
+    Favorite model, to store list of book id's and the user the favorites belong to.
+    '''
     user = db.Column(db.Integer, primary_key=True)
     book_list_id = db.Column(db.JSON)
 
@@ -21,6 +24,9 @@ class Favorite(db.Model):
         }
     
 class ReadBooks(db.Model):
+    '''
+    Read books model, stores list of book id's and the user the read books belong to.
+    '''
     user = db.Column(db.Integer, primary_key=True)
     book_list_id = db.Column(db.JSON)
 
@@ -31,6 +37,9 @@ class ReadBooks(db.Model):
         }
     
 class WantToRead(db.Model):
+    '''
+    Want to read books model, stores list of book id's and the user the want to read books belong to.
+    '''
     user = db.Column(db.Integer, primary_key=True)
     book_list_id = db.Column(db.JSON)
 
@@ -53,12 +62,20 @@ def home():
 #region favorite app routes
 @app.route("/favorites", methods=["GET"])
 def get_favorites():
+    '''
+    Returns all favorites stored in the database.
+    The return is a list of book id's
+    '''
     favorites = Favorite.query.all()
     return jsonify({"favorites": [favorite.to_dict() for favorite in favorites]})
 
 
 @app.route("/favorites/<int:user_id>", methods=["GET"])
 def get_favorite(user_id):
+    '''
+    Returns users favorites according to user id.
+    The return is a list of book id's
+    '''
     favorite = Favorite.query.get(user_id)
     
     if favorite:
@@ -68,6 +85,10 @@ def get_favorite(user_id):
 
 @app.route("/favorite_books/<int:user_id>", methods=["GET"])
 def get_favorite_books(user_id):
+    '''
+    Returns users favorite books according to the user id.
+    It returns the a list of books, the same as Google books.
+    '''
     favorite = Favorite.query.get(user_id)
     
     if favorite:
@@ -82,6 +103,10 @@ def get_favorite_books(user_id):
 
 @app.route("/favorites", methods=["POST"])
 def post_favorites():
+    '''
+    Creates favorites for user. 
+    The data from the post request should hold the user id and the list of book id's.
+    '''
     data = request.get_json()
     
     new_favorite = Favorite(user=data["user"], book_list_id=data["book_list_id"])
@@ -93,6 +118,10 @@ def post_favorites():
 
 @app.route("/favorites/<int:user_id>", methods=["PUT"])
 def update_favorites(user_id):
+    '''
+    Updates favorites for user.
+    The data from the put request should hold the user id and the list of book id's.
+    '''
     data = request.get_json()
 
     favorite = Favorite.query.get(user_id)
@@ -108,6 +137,9 @@ def update_favorites(user_id):
 
 @app.route("/favorites/<int:user_id>", methods=["DELETE"])
 def delete_favorites(user_id):
+    '''
+    Deletes the favorites of user with user_id.
+    '''
     favorite = Favorite.query.get(user_id)
     if favorite:
         db.session.delete(favorite)
@@ -123,12 +155,20 @@ def delete_favorites(user_id):
 #region read book app routes
 @app.route("/read_books", methods=["GET"])
 def get_read_books():
+    '''
+    Returns all read books stored in the database.
+    The return is a list of book id's
+    '''
     read_books = ReadBooks.query.all()
     return jsonify({"read books": [read_book.to_dict() for read_book in read_books]})
 
 
 @app.route("/read_books/<int:user_id>", methods=["GET"])
 def get_read_book(user_id):
+    '''
+    Returns users read books according to user id.
+    The return is a list of book id's
+    '''
     read_books = ReadBooks.query.get(user_id)
     
     if read_books:
@@ -138,6 +178,10 @@ def get_read_book(user_id):
 
 @app.route("/read_book_objects/<int:user_id>", methods=["GET"])
 def get_read_book_object(user_id):
+    '''
+    Returns users read books according to the user id.
+    It returns the a list of books, the same as Google books.
+    '''
     read_books = Favorite.query.get(user_id)
     
     if read_books:
@@ -152,6 +196,10 @@ def get_read_book_object(user_id):
 
 @app.route("/read_books", methods=["POST"])
 def post_read_books():
+    '''
+    Creates read books for user. 
+    The data from the post request should hold the user id and the list of book id's.
+    '''
     data = request.get_json()
     
     new_read_book = ReadBooks(user=data["user"], book_list_id=data["book_list_id"])
@@ -163,6 +211,10 @@ def post_read_books():
 
 @app.route("/read_books/<int:user_id>", methods=["PUT"])
 def update_read_books(user_id):
+    '''
+    Updates read books for user.
+    The data from the put request should hold the user id and the list of book id's.
+    '''
     data = request.get_json()
 
     read_book = ReadBooks.query.get(user_id)
@@ -178,6 +230,9 @@ def update_read_books(user_id):
 
 @app.route("/read_books/<int:user_id>", methods=["DELETE"])
 def delete_read_books(user_id):
+    '''
+    Deletes the read books of user with user_id.
+    '''
     read_book = ReadBooks.query.get(user_id)
     if read_book:
         db.session.delete(read_book)
@@ -193,12 +248,20 @@ def delete_read_books(user_id):
 #region want to read app routes
 @app.route("/want_to_reads", methods=["GET"])
 def get_want_to_reads():
+    '''
+    Returns all want to read books stored in the database.
+    The return is a list of book id's
+    '''
     want_to_reads = WantToRead.query.all()
     return jsonify({"want to read books": [want_to_read.to_dict() for want_to_read in want_to_reads]})
 
 
 @app.route("/want_to_reads/<int:user_id>", methods=["GET"])
 def get_want_to_read(user_id):
+    '''
+    Returns users want to read books according to user id.
+    The return is a list of book id's
+    '''
     want_to_reads = WantToRead.query.get(user_id)
     
     if want_to_reads:
@@ -208,6 +271,10 @@ def get_want_to_read(user_id):
 
 @app.route("/want_to_read_books/<int:user_id>", methods=["GET"])
 def get_want_to_read_books(user_id):
+    '''
+    Returns users want to read books according to the user id.
+    It returns the a list of books, the same as Google books.
+    '''
     want_to_reads = WantToRead.query.get(user_id)
     
     if want_to_reads:
@@ -222,6 +289,10 @@ def get_want_to_read_books(user_id):
 
 @app.route("/want_to_reads", methods=["POST"])
 def post_want_to_read_books():
+    '''
+    Creates want to read books for user. 
+    The data from the post request should hold the user id and the list of book id's.
+    '''
     data = request.get_json()
     
     new_want_to_read = WantToRead(user=data["user"], book_list_id=data["book_list_id"])
@@ -233,6 +304,10 @@ def post_want_to_read_books():
 
 @app.route("/want_to_reads/<int:user_id>", methods=["PUT"])
 def update_want_to_read(user_id):
+    '''
+    Updates want to read books for user.
+    The data from the put request should hold the user id and the list of book id's.
+    '''
     data = request.get_json()
 
     want_to_read = WantToRead.query.get(user_id)
@@ -248,6 +323,9 @@ def update_want_to_read(user_id):
 
 @app.route("/want_to_reads/<int:user_id>", methods=["DELETE"])
 def delete_want_to_read(user_id):
+    '''
+    Deletes the want to read books of user with user_id.
+    '''
     want_to_read = WantToRead.query.get(user_id)
     if want_to_read:
         db.session.delete(want_to_read)
@@ -262,6 +340,9 @@ def delete_want_to_read(user_id):
 
 @app.route("/get_book/<string:book_id>", methods=["GET"])
 def get_book_by_id(book_id):
+    '''
+    Returns a book object from the given book_id the same as the Google Books API.
+    '''
     book_request = requests.get(f"https://www.googleapis.com/books/v1/volumes/{book_id}")
     return book_request.json()
 
