@@ -42,7 +42,7 @@ def get_favorite(user_id):
     if favorite:
         return jsonify(favorite.to_dict())
     else:
-        return jsonify({"message": f"no favorites found for user: {user_id}"}), 404
+        return jsonify({"error": f"favorite not found for user: {user_id}"}), 404
 
 
 @app.route("/favorites", methods=["POST"])
@@ -55,6 +55,34 @@ def post_favorites():
     db.session.commit()
 
     return jsonify(new_favorite.to_dict()), 201
+
+@app.route("/favorites/<int:user_id>", methods=["PUT"])
+def udpate_favorites(user_id):
+    data = request.get_json()
+
+    favorite = Favorite.query.get(user_id)
+    if favorite:
+        favorite.user = data.get('user', favorite.user)
+        favorite.book_list_id = data.get('book_list_id', favorite.book_list_id)
+
+        db.session.commit()
+        return jsonify(favorite.to_dict())
+    else:
+        return jsonify({"error": "favorite not found"}), 404
+
+
+@app.route("/favorites/<int:user_id>", methods=["DELETE"])
+def delete_favorites(user_id):
+    favorite = Favorite.query.get(user_id)
+    if favorite:
+        db.session.delete(favorite)
+        db.session.commit()
+
+        return jsonify({"message": "favorite was deleted"})
+    else:
+        return jsonify({"error": "favorite not found"}), 404
+
+
 
 
 if __name__ == "__main__":
