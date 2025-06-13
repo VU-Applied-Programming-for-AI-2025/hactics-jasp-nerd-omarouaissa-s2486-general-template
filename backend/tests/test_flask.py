@@ -84,6 +84,35 @@ class test_flask_favorites(unittest.TestCase):
         self.assertEqual(get_request.json(), {"favorites": [
             {'user': 1, 'book_list_id': {'list': ['book1', 'book2']}}, 
             {'user': 2, 'book_list_id': {'list': ['book3', 'book4']}}]})
+        
+
+    def test_0040_update_favorite(self):
+        '''
+        Tests the update favorite Put request.
+        '''
+
+        put_request = requests.put("http://127.0.0.1:5000/favorites/1", json={
+            "user": 1,
+            "book_list_id": {"list": ["book5", "book7"]}
+        })
+
+        self.assertEqual(put_request.status_code, 200)
+
+        self.assertEqual(requests.get("http://127.0.0.1:5000/favorites/1").json(), {
+            "user": 1,
+            "book_list_id": {"list": ["book5", "book7"]}
+        })
+
+
+    def test_0050_delete_favorite(self):
+        '''
+        Tests the deletion of a favorites object.
+        '''
+
+        delete_request = requests.delete("http://127.0.0.1:5000/favorites/1")
+        self.assertEqual(delete_request.status_code, 200)
+        
+        self.assertEqual(requests.get("http://127.0.0.1:5000/favorites/1").status_code, 404)
 
 
 
