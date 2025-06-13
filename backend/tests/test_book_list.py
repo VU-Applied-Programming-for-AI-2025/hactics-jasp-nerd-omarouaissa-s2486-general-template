@@ -6,7 +6,7 @@ from typing import List
 
 from book_list import BookList
 
-class tests(unittest.TestCase):
+class BookListTests(unittest.TestCase):
 
     def setUp(self) -> None:
         self.book_list = BookList()
