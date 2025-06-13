@@ -9,7 +9,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from book_list import BookList, Book
-
+from app import book_search_title
 class ListTests(unittest.TestCase):
 
     def setUp(self) -> None:
@@ -98,15 +98,17 @@ class SearchTests(unittest.TestCase):
     def test_filter_search(self):
         pass
     
-    def test_book_search(self):
+    def test_book_search_title(self):
         '''
         Test for the book search function.
 
         The function will take a string and perform a call to the Google Books API, it will then put the resulted books into a list.
+        
+        This tests that it returns a list of items, that the list is not empty and that an item contains the relevant volumeInfo inside it.
         '''
         query = "The Way of Kings"
-        result_list = 2#apps.book_search(query)
-        print(result_list)
+        result_list = book_search_title(query) 
+        
         assert isinstance(result_list, list)
         assert len(result_list) > 0
         assert "volumeInfo" in result_list[0]
