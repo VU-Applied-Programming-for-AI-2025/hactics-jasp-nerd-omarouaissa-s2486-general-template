@@ -129,6 +129,30 @@ class test_flask_favorites(unittest.TestCase):
         self.assertEqual(get_request.json()['volumeInfo']['title'], "Flowers for Algernon")
         self.assertEqual(get_request.json()['volumeInfo']['authors'], ["Daniel Keyes"])
 
+    def test_0070_get_favorite_books(self):
+        '''
+        Tests the get favorite books request.
+        '''
+
+        requests.post("http://127.0.0.1:5000/favorites", json={
+            "user": 3,
+            "book_list_id": {"list": ["5zl-KQEACAAJ", "F1wgqlNi8AMC"]}
+        })
+
+        get_request = requests.get("http://127.0.0.1:5000/favorite_books/3")
+
+        self.assertEqual(get_request.status_code, 201)
+
+        self.assertEqual(get_request.json()['book_list_id']['list'][0]['volumeInfo']['title'], "Flowers for Algernon")
+        self.assertEqual(get_request.json()['book_list_id']['list'][1]['volumeInfo']['title'], "Flowers for Algernon")
+        self.assertEqual(get_request.json()['book_list_id']['list'][0]['volumeInfo']['authors'], ["Daniel Keyes"])
+        self.assertEqual(get_request.json()['book_list_id']['list'][1]['volumeInfo']['authors'], ["David Rogers", "Daniel Keyes"])
+
+
+
+
+
+
 
 
 

@@ -66,6 +66,9 @@ def get_favorite(user_id):
     else:
         return jsonify({"error": f"favorite not found for user: {user_id}"}), 404
 
+@app.route("/favorite_books/<int:user_id>", methods=["GET"])
+def get_favorite_books(user_id):
+    pass
 
 @app.route("/favorites", methods=["POST"])
 def post_favorites():
