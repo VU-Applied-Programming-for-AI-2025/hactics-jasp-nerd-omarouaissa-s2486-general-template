@@ -114,6 +114,22 @@ class test_flask_favorites(unittest.TestCase):
         
         self.assertEqual(requests.get("http://127.0.0.1:5000/favorites/1").status_code, 404)
 
+    
+    def test_0060_get_book_info_by_id(self):
+        '''
+        Tests the get book info by id. 
+        '''
+
+        #GET https://www.googleapis.com/books/v1/volumes/volumeId
+
+        get_request = requests.get("http://127.0.0.1:5000/get_book/5zl-KQEACAAJ")
+
+        self.assertEqual(get_request.status_code, 200)
+
+        self.assertEqual(get_request.json()['volumeInfo']['title'], "Flowers for Algernon")
+        self.assertEqual(get_request.json()['volumeInfo']['authors'], ["Daniel Keyes"])
+
+
 
 
 
