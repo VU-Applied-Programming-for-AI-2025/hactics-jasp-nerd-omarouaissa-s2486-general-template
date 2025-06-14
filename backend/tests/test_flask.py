@@ -148,6 +148,22 @@ class test_flask_favorites(unittest.TestCase):
         self.assertEqual(get_request.json()[0]['volumeInfo']['authors'], ["Daniel Keyes"])
         self.assertEqual(get_request.json()[1]['volumeInfo']['authors'], ["David Rogers", "Daniel Keyes"])
 
+    
+    def test_0080_add_book_id_to_favorites(self):
+        '''
+        Tests the add book id to favorites request.
+        '''
+
+        post_request = requests.post('http://127.0.0.1:5000/favorites/3/add/book24534')
+
+        self.assertEqual(post_request.status_code, 201)
+
+        get_request = requests.post('http://127.0.0.1:5000/favorites/3')
+
+        self.assertEqual(get_request.status_code, 200)
+        self.assertEqual(get_request.json()["book_list_id"]["list"][2], "book24534")
+
+
 
 
 

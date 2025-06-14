@@ -149,6 +149,13 @@ def delete_favorites(user_id):
     else:
         return jsonify({"error": "favorite not found"}), 404
     
+@app.route("/favorites/<int:user_id>/add/<string:book_id>", methods=["POST"])
+def add_book_id_to_favorites(user_id, book_id):
+    '''
+    The post request does not need body information, the book_id is given in the url of the request
+    '''
+    return f"test, {user_id}, {book_id}"
+    
 #endregion
 
 
