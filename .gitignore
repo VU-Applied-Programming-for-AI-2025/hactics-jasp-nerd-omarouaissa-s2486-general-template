@@ -1,16 +1,17 @@
 ### specify files and folders to exclude from version control ###
-output.json
-backend/__pycache__/app.cpython-310.pyc
-backend/tests/__pycache__/test_tests.cpython-310-pytest-7.4.4.pyc
-backend/__pycache__/__init__.cpython-312.pyc
-backend/__pycache__/settings.cpython-312.pyc
-Bookbuddy/__pycache__/__init__.cpython-312.pyc
-Bookbuddy/__pycache__/tests.cpython-312-pytest-8.4.0.pyc
-Bookbuddy/__pycache__/apps.cpython-312.pyc
-Bookbuddy/tests/__pycache__/tests.cpython-312-pytest-8.4.0.pyc
-Bookbuddy/tests/__pycache__/tests.cpython-312-pytest-8.4.0.pyc
-Bookbuddy/tests/__pycache__/book_list.cpython-312.pyc
-Bookbuddy/__pycache__/settings.cpython-312.pyc
-book_app/__pycache__/tests.cpython-312-pytest-8.4.0.pyc
-book_app/__pycache__/apps.cpython-312.pyc
-book_app/__pycache__/__init__.cpython-312.pyc
+# stupid virtual environments
+.book/
+book/
+.venv/
+venv/
+
+# stupid pycache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# stupid macs
+.DS_Store
+*.log
