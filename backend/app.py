@@ -1,6 +1,6 @@
-from flask import Flask, render_template
 from flask import Flask, request, jsonify
 from google import genai
+from google.genai import types
 import os
 from dotenv import load_dotenv
 # Run website --> python backend/app.py in cmd
@@ -9,9 +9,14 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# Start gemini API
+# Start gemini API with system prompt for book recommendations
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-chat = client.chats.create(model="gemini-2.0-flash")
+chat = client.chats.create(
+    model="gemini-2.0-flash",
+    config=types.GenerateContentConfig(
+        system_instruction="You are BookBuddy, a friendly and knowledgeable book recommendation assistant."
+    )
+)
 
 @app.route("/")
 def home():
