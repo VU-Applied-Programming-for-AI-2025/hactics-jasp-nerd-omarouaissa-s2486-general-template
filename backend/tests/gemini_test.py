@@ -3,7 +3,6 @@ import os
 from google import genai
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
 class GeminiAPITests(unittest.TestCase):
