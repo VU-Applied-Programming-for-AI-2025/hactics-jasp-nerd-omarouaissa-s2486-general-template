@@ -163,6 +163,18 @@ class test_flask_favorites(unittest.TestCase):
         self.assertEqual(get_request.status_code, 200)
         self.assertEqual(get_request.json()["book_list_id"]["list"][2], "book24534")
 
+    def test_0081_delete_book_id_from_favorites(self):
+        '''
+        Tests the delete book id to favorites request.
+        '''
+        post_request = requests.post('http://127.0.0.1:5000/favorites/3/delete/book24534')
+        self.assertEqual(post_request.status_code, 200)
+
+        get_request = requests.get('http://127.0.0.1:5000/favorites/3')
+
+        self.assertEqual(get_request.status_code, 200)
+        self.assertEqual(get_request.json()["book_list_id"]["list"], {"list": ["5zl-KQEACAAJ", "F1wgqlNi8AMC"]})
+
 
 
 
