@@ -96,6 +96,16 @@ class SearchTests(unittest.TestCase):
         self.assertEqual(requests.request("GET", f"https://www.googleapis.com/books/v1/volumes?q=flowers+inauthor:keyes&key={os.environ["API_KEY"]}").status_code, 200)
 
     def test_filter_search(self):
+        """
+        This will test the filter function of the searches.
+
+        """
+
+
+
+
+
+        
         pass
     
     def test_book_search_title(self):
@@ -108,10 +118,10 @@ class SearchTests(unittest.TestCase):
         '''
         query = "The Way of Kings"
         result_list = book_search_title(query) 
-        
         assert isinstance(result_list, list)
         assert len(result_list) > 0
         assert "volumeInfo" in result_list[0]
+        assert result_list[0]["volumeInfo"]["title"] == "The Way of Kings"
 
     
 class FilterTests(unittest.TestCase):
