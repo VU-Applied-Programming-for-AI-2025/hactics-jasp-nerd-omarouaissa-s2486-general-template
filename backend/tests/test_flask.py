@@ -156,9 +156,9 @@ class test_flask_favorites(unittest.TestCase):
 
         post_request = requests.post('http://127.0.0.1:5000/favorites/3/add/book24534')
 
-        self.assertEqual(post_request.status_code, 201)
+        self.assertEqual(post_request.status_code, 200)
 
-        get_request = requests.post('http://127.0.0.1:5000/favorites/3')
+        get_request = requests.get('http://127.0.0.1:5000/favorites/3')
 
         self.assertEqual(get_request.status_code, 200)
         self.assertEqual(get_request.json()["book_list_id"]["list"][2], "book24534")
