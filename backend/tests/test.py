@@ -118,10 +118,9 @@ class SearchTests(unittest.TestCase):
         assert "volumeInfo" in result_list[0]
         assert result_list[0]["volumeInfo"]["title"] == "The Way of Kings"
     
-    def test_flask_search_routes(client):
+    def test_flask_search_routes(self):
         #Checks if the url even works in flask aka (200) status code.
-        response = client.get('/search?q=Python')
-        assert response.status_code == 200
+        self.assertEqual(requests.request("GET", f"http://127.0.0.1:5000/search").status_code, 200)
     
     def test_optional_params_none(self):
         #Test if i do not put in ANY filters, is it gonna break on me or not.
