@@ -8,7 +8,7 @@ import os
 from dotenv import load_dotenv
 import requests
 import os
-print(os.environ["API_KEY"])
+
 # Run website --> python backend/app.py in cmd
 load_dotenv()
 
