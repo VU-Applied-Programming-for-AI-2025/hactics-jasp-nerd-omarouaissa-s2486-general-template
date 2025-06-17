@@ -4,6 +4,7 @@ import requests
 
 import requests
 import os
+print(os.environ["API_KEY"])
 # Run website --> python backend/app.py in cmd
 
 app = Flask(__name__)
@@ -50,7 +51,33 @@ class WantToRead(db.Model):
             "user": self.user,
             "book_list_id": self.book_list_id
         }
-    
+
+
+def search_url_build(query, order_by=None, lg=None, start_index=0, max_results=10, api_key=None):
+    base_link = "https://www.googleapis.com/books/v1/volumes"
+    params = {
+        "q": query,
+        "startIndex": start_index,
+        "maxResults": max_results
+    }
+
+    if order_by:
+        params["orderBy"] = order_by
+    if lg:
+        params["langRestrict"] = lg
+    if api_key:
+        params["key"] = api_key
+
+    # add all of the parameters to the url for the search.
+    from urllib.parse import urlencode
+    query_string = urlencode(params)
+    full_url = f"{base_link}?{query_string}"
+
+    #returns full url with all the searches
+    return full_url
+
+
+
 with app.app_context():
     db.create_all()
 
@@ -354,6 +381,30 @@ def get_book_by_id(book_id):
     '''
     book_request = requests.get(f"https://www.googleapis.com/books/v1/volumes/{book_id}")
     return book_request.json()
+
+
+#search region
+@app.route('/search', methods=['GET'])
+def search():
+    query = request.args.get('q')
+    order_by = request.args.get('order_by')
+    lg = request.args.get('lang')
+    page = int(request.args.get('page', 1))
+    max_results = 10
+    start_index = (page - 1) * max_results
+
+    url = search_url_build(
+        query=query,
+        order_by=order_by,
+        lg=lg,
+        start_index=start_index,
+        max_results=max_results,
+        api_key= os.environ["API_KEY"]
+    )
+
+    response = requests.get(url)
+    books = response.json().get("items", [])
+    return jsonify(books)
 
 
 

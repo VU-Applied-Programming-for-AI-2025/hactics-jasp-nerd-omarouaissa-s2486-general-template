@@ -8,8 +8,8 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from book_list import BookList, Book
-from app import book_search_title
+from book_list import BookList
+from app import book_search_title, search_url_build
 class ListTests(unittest.TestCase):
 
     def setUp(self) -> None:
@@ -91,23 +91,18 @@ class ListTests(unittest.TestCase):
 
 class SearchTests(unittest.TestCase):
  
+
     def test_api_response(self):
         # This tests that the api give a 200 (ok) status code
         self.assertEqual(requests.request("GET", f"https://www.googleapis.com/books/v1/volumes?q=flowers+inauthor:keyes&key={os.environ["API_KEY"]}").status_code, 200)
 
     def test_filter_search(self):
-        """
-        This will test the filter function of the searches.
+        #test a filter search, checking to see if params are in place.
+        url = search_url_build("flowers", [] )
+        assert "q=flowers" in url
+        assert "startIndex=0" in url
+        assert "maxResults=10" in url
 
-        """
-
-
-
-
-
-        
-        pass
-    
     def test_book_search_title(self):
         '''
         Test for the book search function.
@@ -122,12 +117,20 @@ class SearchTests(unittest.TestCase):
         assert len(result_list) > 0
         assert "volumeInfo" in result_list[0]
         assert result_list[0]["volumeInfo"]["title"] == "The Way of Kings"
-
     
-class FilterTests(unittest.TestCase):
-
-    def test_addition(self):
-        self.assertGreater(1,2)
+    def test_flask_search_routes(client):
+        #Checks if the url even works in flask aka (200) status code.
+        response = client.get('/search?q=Python')
+        assert response.status_code == 200
+    
+    def test_optional_params_none(self):
+        #Test if i do not put in ANY filters, is it gonna break on me or not.
+        url = search_url_build("Python")
+        assert "filter=" not in url
+        assert "orderBy=" not in url
+        assert "langRestrict=" not in url
+        assert "printType=" not in url
+        assert "key=" not in url
 
 if __name__ == "__main__":
     unittest.main
