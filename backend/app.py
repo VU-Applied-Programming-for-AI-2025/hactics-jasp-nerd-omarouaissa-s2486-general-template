@@ -468,53 +468,6 @@ def search():
     return jsonify(books)
 
 
-#search region
-@app.route('/search', methods=['GET'])
-def search():
-    query = request.args.get('q')
-    order_by = request.args.get('order_by')
-    lg = request.args.get('lang')
-    page = int(request.args.get('page', 1))
-    max_results = 10
-    start_index = (page - 1) * max_results
-
-    url = search_url_build(
-        query=query,
-        order_by=order_by,
-        lg=lg,
-        start_index=start_index,
-        max_results=max_results,
-        api_key= os.environ["API_KEY"]
-    )
-
-    response = requests.get(url)
-    books = response.json().get("items", [])
-    return jsonify(books)
-
-
-
-@app.route("/api/chat", methods=["POST"])
-def chat_endpoint():
-    try:
-        data = request.get_json()
-        if not data or "message" not in data:
-            return jsonify({"error": "No message provided"}), 400
-
-        user_message = data["message"]
-        
-        # Send message to gemini and get response
-        response = chat.send_message(user_message)
-        
-        return jsonify({
-            "response": response.text,
-            "status": "success"
-        })
-    except Exception as e:
-        return jsonify({
-            "error": str(e),
-            "status": "error"
-        }), 500
-
 @app.route("/api/chat", methods=["POST"])
 def chat_endpoint():
     try:
