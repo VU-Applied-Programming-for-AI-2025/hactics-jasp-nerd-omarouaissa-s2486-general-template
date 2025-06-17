@@ -2,7 +2,9 @@ import unittest
 
 import requests
 
-# from .. import app
+
+#flask home url
+url: str = "http://127.0.0.1:5000"
 
 class test_flask_favorites(unittest.TestCase):
     '''
@@ -16,7 +18,7 @@ class test_flask_favorites(unittest.TestCase):
         '''
         Tests the home page of the flask app.
         '''
-        get_request = requests.get("http://127.0.0.1:5000")
+        get_request = requests.get(url)
         self.assertEqual(get_request.status_code, 200)
         self.assertEqual(get_request.json(), {"message": "Welcome to BookBuddy"})
 
@@ -25,10 +27,10 @@ class test_flask_favorites(unittest.TestCase):
         Tests the creation of favorite lists.
         '''
 
-        get_request = requests.get("http://127.0.0.1:5000/favorites")
+        get_request = requests.get(url+"/favorites")
         self.assertEqual(get_request.status_code, 200)
 
-        post_request = requests.post("http://127.0.0.1:5000/favorites", json=
+        post_request = requests.post(url+"/favorites", json=
         {
             "user": 1,
             "book_list_id": {"list": ["book1", "book2"]}
@@ -36,7 +38,7 @@ class test_flask_favorites(unittest.TestCase):
 
         self.assertEqual(post_request.status_code, 201)
 
-        post_request2 = requests.post("http://127.0.0.1:5000/favorites", json=
+        post_request2 = requests.post(url+"/favorites", json=
         {
             "user": 2,
             "book_list_id": {"list": ["book3", "book4"]}
@@ -45,7 +47,7 @@ class test_flask_favorites(unittest.TestCase):
         self.assertEqual(post_request2.status_code, 201)
 
         # You should not be able to create an object with the same user id twice.
-        post_request2 = requests.post("http://127.0.0.1:5000/favorites", json=
+        post_request2 = requests.post(url+"/favorites", json=
         {
             "user": 1,
             "book_list_id": {"list": ["book2", "book5"]}
@@ -59,14 +61,14 @@ class test_flask_favorites(unittest.TestCase):
         Tests the get_favorite Get request with an given user id.
         '''
 
-        get_request = requests.get("http://127.0.0.1:5000/favorites/1")
+        get_request = requests.get(url+"/favorites/1")
         self.assertEqual(get_request.status_code, 200)
         self.assertEqual(get_request.json(), {
             "user": 1,
             "book_list_id": {"list": ["book1", "book2"]}
         })
 
-        get_request2 = requests.get("http://127.0.0.1:5000/favorites/2")
+        get_request2 = requests.get(url+"/favorites/2")
         self.assertEqual(get_request2.status_code, 200)
         self.assertEqual(get_request2.json(), {
             "user": 2,
@@ -79,7 +81,7 @@ class test_flask_favorites(unittest.TestCase):
         Tests the get_favorites Get request, this function uses the data posted by the previous function.
         '''
 
-        get_request = requests.get("http://127.0.0.1:5000/favorites")
+        get_request = requests.get(url+"/favorites")
         self.assertEqual(get_request.status_code, 200)
         self.assertEqual(get_request.json(), {"favorites": [
             {'user': 1, 'book_list_id': {'list': ['book1', 'book2']}}, 
@@ -91,14 +93,14 @@ class test_flask_favorites(unittest.TestCase):
         Tests the update favorite Put request.
         '''
 
-        put_request = requests.put("http://127.0.0.1:5000/favorites/1", json={
+        put_request = requests.put(url+"/favorites/1", json={
             "user": 1,
             "book_list_id": {"list": ["book5", "book7"]}
         })
 
         self.assertEqual(put_request.status_code, 200)
 
-        self.assertEqual(requests.get("http://127.0.0.1:5000/favorites/1").json(), {
+        self.assertEqual(requests.get(url+"/favorites/1").json(), {
             "user": 1,
             "book_list_id": {"list": ["book5", "book7"]}
         })
@@ -109,10 +111,10 @@ class test_flask_favorites(unittest.TestCase):
         Tests the deletion of a favorites object.
         '''
 
-        delete_request = requests.delete("http://127.0.0.1:5000/favorites/1")
+        delete_request = requests.delete(url+"/favorites/1")
         self.assertEqual(delete_request.status_code, 200)
         
-        self.assertEqual(requests.get("http://127.0.0.1:5000/favorites/1").status_code, 404)
+        self.assertEqual(requests.get(url+"/favorites/1").status_code, 404)
 
     
     def test_0060_get_book_info_by_id(self):
@@ -122,7 +124,7 @@ class test_flask_favorites(unittest.TestCase):
 
         #GET https://www.googleapis.com/books/v1/volumes/volumeId
 
-        get_request = requests.get("http://127.0.0.1:5000/get_book/5zl-KQEACAAJ")
+        get_request = requests.get(url+"/get_book/5zl-KQEACAAJ")
 
         self.assertEqual(get_request.status_code, 200)
 
@@ -134,12 +136,12 @@ class test_flask_favorites(unittest.TestCase):
         Tests the get favorite books request.
         '''
 
-        requests.post("http://127.0.0.1:5000/favorites", json={
+        requests.post(url+"/favorites", json={
             "user": 3,
             "book_list_id": {"list": ["5zl-KQEACAAJ", "F1wgqlNi8AMC"]}
         })
 
-        get_request = requests.get("http://127.0.0.1:5000/favorite_books/3")
+        get_request = requests.get(url+"/favorite_books/3")
 
         self.assertEqual(get_request.status_code, 200)
         print(get_request.json())
@@ -154,11 +156,11 @@ class test_flask_favorites(unittest.TestCase):
         Tests the add book id to favorites request.
         '''
 
-        post_request = requests.post('http://127.0.0.1:5000/favorites/3/add/book24534')
+        post_request = requests.post(url+'/favorites/3/add/book24534')
 
         self.assertEqual(post_request.status_code, 200)
 
-        get_request = requests.get('http://127.0.0.1:5000/favorites/3')
+        get_request = requests.get(url+'/favorites/3')
 
         self.assertEqual(get_request.status_code, 200)
         self.assertEqual(get_request.json()["book_list_id"]["list"][2], "book24534")
@@ -167,15 +169,44 @@ class test_flask_favorites(unittest.TestCase):
         '''
         Tests the delete book id to favorites request.
         '''
-        post_request = requests.post('http://127.0.0.1:5000/favorites/3/delete/book24534')
+        post_request = requests.post(url+'/favorites/3/delete/book24534')
         self.assertEqual(post_request.status_code, 200)
 
-        get_request = requests.get('http://127.0.0.1:5000/favorites/3')
+        get_request = requests.get(url+'/favorites/3')
 
         self.assertEqual(get_request.status_code, 200)
-        self.assertEqual(get_request.json()["book_list_id"]["list"], {"list": ["5zl-KQEACAAJ", "F1wgqlNi8AMC"]})
+        self.assertEqual(get_request.json()["book_list_id"], {"list": ["5zl-KQEACAAJ", "F1wgqlNi8AMC"]})
 
 
+    def test_0090_get_recommendations(self):
+        '''
+        Tests the get recommendations for user function.
+        {
+            "recommendations": [list of recommended books],
+            "genre": genre_of_recommended_books
+        }
+        '''
+        #9XYlEQAAQBAJ, Yz8Fnw0PlEQC, 7L1_BAAAQBAJ
+
+        #genre: Young Adult Fiction
+        requests.post(url+'/favorites/3/add/9XYlEQAAQBAJ')
+        requests.post(url+'/favorites/3/add/Yz8Fnw0PlEQC')
+        requests.post(url+'/favorites/3/add/7L1_BAAAQBAJ')
+
+        get_request = requests.get(url+"/recommendations/3")
+
+        self.assertEqual(get_request.status_code, 200)
+        self.assertEqual(get_request.json()["genre"], "Young Adult Fiction")
+        self.assertEqual(len(get_request.json()["recommendations"]), 12)
+
+        #user 4 does not exist, but we still want recommendations
+        get_request2 = requests.get(url+"recommendations/4")
+
+        self.assertEqual(get_request2.status_code, 200)
+        
+        #standard genre if user does not exist or is new: Juvenile Fiction
+        self.assertEqual(get_request2.json()["genre"], "Juvenile Fiction")
+        self.assertEqual(len(get_request2.json()["recommendations"]), 12)
 
 
 
