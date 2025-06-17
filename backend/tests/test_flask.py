@@ -197,16 +197,16 @@ class test_flask_favorites(unittest.TestCase):
 
         self.assertEqual(get_request.status_code, 200)
         self.assertEqual(get_request.json()["genre"], "Young Adult Fiction")
-        self.assertEqual(len(get_request.json()["recommendations"]), 12)
+        self.assertEqual(len(get_request.json()["recommendations"]['items']), 10)
 
         #user 4 does not exist, but we still want recommendations
-        get_request2 = requests.get(url+"recommendations/4")
+        get_request2 = requests.get(url+"/recommendations/4")
 
         self.assertEqual(get_request2.status_code, 200)
         
         #standard genre if user does not exist or is new: Juvenile Fiction
         self.assertEqual(get_request2.json()["genre"], "Juvenile Fiction")
-        self.assertEqual(len(get_request2.json()["recommendations"]), 12)
+        self.assertEqual(len(get_request2.json()["recommendations"]['items']), 10)
 
 
 

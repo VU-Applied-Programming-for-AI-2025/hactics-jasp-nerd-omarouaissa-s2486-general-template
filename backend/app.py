@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import requests
 from sqlalchemy.orm.attributes import flag_modified
+import os
 
 # Run website --> python backend/app.py in cmd
 
@@ -452,6 +453,55 @@ def get_book_by_id(book_id):
     '''
     book_request = requests.get(f"https://www.googleapis.com/books/v1/volumes/{book_id}")
     return book_request.json()
+
+@app.route("/recommendations/<int:user_id>", methods=["GET"])
+def get_recommendations(user_id):
+    '''
+    Gets recommmendations for user. If user does not exist it will still return recommendations.
+    '''
+    favorite_book_ids = Favorite.query.get(user_id)
+
+    if not favorite_book_ids:
+        standard_genre: str = "Juvenile Fiction"
+        get_recommended_books = requests.get(f'https://www.googleapis.com/books/v1/volumes?q=subject:"{standard_genre}"&printType=books&projection=full')
+
+        return jsonify({"recommendations": get_recommended_books.json(), "genre": standard_genre})
+
+    favorites: list = []
+    genre_ranking: dict = {}
+
+    for book_id in favorite_book_ids.book_list_id['list']:
+        book = get_book_by_id(book_id)
+        favorites.append(book)
+
+        genres = book["volumeInfo"]["categories"]
+        genres_per_book: list = []
+        # we only want to get one of each genre per book.
+        for genre in genres:
+            book_genre_list = genre.split('/')
+            for book_genre in book_genre_list:
+                book_genre = book_genre.strip()
+
+                if book_genre not in genres_per_book:
+                    genres_per_book.append(book_genre)
+                    genre_ranking[book_genre] = genre_ranking.get(book_genre, 0) + 1
+
+        # we want to grab the most common genre.
+        most_common_genre: str = None
+        highest_genre_count: int = 0
+        for genre, count in genre_ranking.items():
+            if count > highest_genre_count and genre != "General":
+                highest_genre_count = count
+                most_common_genre = genre
+
+
+
+    # search books by genre:
+    get_recommended_books = requests.get(f'https://www.googleapis.com/books/v1/volumes?q=subject:"{most_common_genre}"&printType=books&projection=full')
+
+    # print("reco: ", get_recommended_books)
+
+    return jsonify({"recommendations": get_recommended_books.json(), "genre": most_common_genre})
 
 
 
