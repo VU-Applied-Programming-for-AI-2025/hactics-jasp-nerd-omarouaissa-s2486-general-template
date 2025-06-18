@@ -29,5 +29,5 @@ GEMINI_API_KEY=your_gemini_api_key
 python backend/app.py
 ```
 The backend will start on `http://127.0.0.1:5000/` by default.
-
-
+### FOR TESTING!!
+Please reset/delete the old databases before running the tests.
