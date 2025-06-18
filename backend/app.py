@@ -1,13 +1,27 @@
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import requests
-
+from sqlalchemy.orm.attributes import flag_modified
+from google import genai
+from google.genai import types
+import os
+from dotenv import load_dotenv
 import requests
 import os
-print(os.environ["API_KEY"])
+
 # Run website --> python backend/app.py in cmd
+load_dotenv()
 
 app = Flask(__name__)
+
+# Start gemini API with system prompt for book recommendations
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+chat = client.chats.create(
+    model="gemini-2.0-flash",
+    config=types.GenerateContentConfig(
+        system_instruction="You are BookBuddy, a friendly and knowledgeable book recommendation assistant."
+    )
+)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bookbuddy.db'
 
@@ -84,7 +98,6 @@ with app.app_context():
 
 @app.route("/")
 def home():
-
     return jsonify({"message": "Welcome to BookBuddy"})
 
 
@@ -183,7 +196,20 @@ def add_book_id_to_favorites(user_id, book_id):
     '''
     The post request does not need body information, the book_id is given in the url of the request
     '''
-    return f"test, {user_id}, {book_id}"
+    # maybe change the book_id to be in the body of the request
+
+    favorite = Favorite.query.get(user_id)
+    if favorite:
+
+        # new_book_list = favorite.to_dict()['book_list_id']['list']
+        favorite.book_list_id['list'].append(book_id)
+
+        flag_modified(favorite, 'book_list_id')
+        db.session.commit()
+        return jsonify({'created': favorite.to_dict()})
+    else:
+        return jsonify({'error': 'user not found'}), 404
+
     
 #endregion
 
@@ -277,7 +303,25 @@ def delete_read_books(user_id):
         return jsonify({"message": "read_book was deleted"})
     else:
         return jsonify({"error": "read_book not found"}), 404
-    
+
+
+@app.route("/read_books/<int:user_id>/add/<string:book_id>", methods=["POST"])
+def add_book_id_to_read_books(user_id, book_id):
+    '''
+    The post request does not need body information, the book_id is given in the url of the request
+    '''
+
+    read_book = ReadBooks.query.get(user_id)
+    if read_book:
+        read_book.book_list_id['list'].append(book_id)
+
+        flag_modified(read_book, 'book_list_id')
+        db.session.commit()
+        return jsonify({'created': read_book.to_dict()})
+    else:
+        return jsonify({'error': 'user not found'}), 404
+
+
 #endregion
 
 
@@ -371,6 +415,23 @@ def delete_want_to_read(user_id):
     else:
         return jsonify({"error": "want_to_read not found"}), 404
     
+@app.route("/want_to_reads/<int:user_id>/add/<string:book_id>", methods=["POST"])
+def add_book_id_to_want_to_read(user_id, book_id):
+    '''
+    The post request does not need body information, the book_id is given in the url of the request
+    '''
+
+    want_to_read = WantToRead.query.get(user_id)
+    if want_to_read:
+        want_to_read.book_list_id['list'].append(book_id)
+
+        flag_modified(want_to_read, 'book_list_id')
+        db.session.commit()
+        return jsonify({'created': want_to_read.to_dict()})
+    else:
+        return jsonify({'error': 'user not found'}), 404
+
+    
 #endregion
 
 
@@ -407,6 +468,27 @@ def search():
     return jsonify(books)
 
 
+@app.route("/api/chat", methods=["POST"])
+def chat_endpoint():
+    try:
+        data = request.get_json()
+        if not data or "message" not in data:
+            return jsonify({"error": "No message provided"}), 400
+
+        user_message = data["message"]
+        
+        # Send message to gemini and get response
+        response = chat.send_message(user_message)
+        
+        return jsonify({
+            "response": response.text,
+            "status": "success"
+        })
+    except Exception as e:
+        return jsonify({
+            "error": str(e),
+            "status": "error"
+        }), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
