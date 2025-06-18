@@ -159,5 +159,47 @@ class test_flask_favorites(unittest.TestCase):
         self.assertEqual(get_request.status_code, 200)
         self.assertEqual(get_request.json()["book_list_id"]["list"][2], "book24534")
 
+    def test_0081_delete_book_id_from_favorites(self):
+        '''
+        Tests the delete book id to favorites request.
+        '''
+        post_request = requests.post(BASE_URL+'/favorites/user3/delete/book24534')
+        self.assertEqual(post_request.status_code, 200)
+
+        get_request = requests.get(BASE_URL+'/favorites/user3')
+
+        self.assertEqual(get_request.status_code, 200)
+        self.assertEqual(get_request.json()["book_list_id"], {"list": ["5zl-KQEACAAJ", "F1wgqlNi8AMC"]})
+
+
+    def test_0090_get_recommendations(self):
+        '''
+        Tests the get recommendations for user function.
+        {
+            "recommendations": [list of recommended books],
+            "genre": genre_of_recommended_books
+        }
+        '''
+
+        #genre: Young Adult Fiction
+        requests.post(BASE_URL+'/favorites/user3/add/9XYlEQAAQBAJ')
+        requests.post(BASE_URL+'/favorites/user3/add/Yz8Fnw0PlEQC')
+        requests.post(BASE_URL+'/favorites/user3/add/7L1_BAAAQBAJ')
+
+        get_request = requests.get(BASE_URL+"/recommendations/user3")
+
+        self.assertEqual(get_request.status_code, 200)
+        self.assertEqual(get_request.json()["genre"], "Young Adult Fiction")
+        self.assertEqual(len(get_request.json()["recommendations"]['items']), 10)
+
+        #user 4 does not exist, but we still want recommendations
+        get_request2 = requests.get(BASE_URL+"/recommendations/user4")
+
+        self.assertEqual(get_request2.status_code, 200)
+        
+        #standard genre if user does not exist or is new: Juvenile Fiction
+        self.assertEqual(get_request2.json()["genre"], "Juvenile Fiction")
+        self.assertEqual(len(get_request2.json()["recommendations"]['items']), 10)
+
 if __name__ == "__main__":
     unittest.main()

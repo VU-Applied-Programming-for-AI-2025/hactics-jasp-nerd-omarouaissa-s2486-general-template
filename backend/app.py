@@ -8,6 +8,7 @@ import os
 from dotenv import load_dotenv
 import requests
 import os
+import datetime
 
 # Run website --> python backend/app.py in cmd
 load_dotenv()
@@ -72,7 +73,7 @@ class Review(db.Model):
     book_id = db.Column(db.String(15), nullable=False)
     user = db.Column(db.String(30), nullable=False)
     rating = db.Column(db.Float, nullable=False)
-    date = db.Column(db.DateTime, default=datetime.utcnow)
+    date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     message = db.Column(db.Text)
 
 def search_url_build(query, order_by=None, lg=None, start_index=0, max_results=10, api_key=None):
@@ -236,7 +237,7 @@ def add_book_id_to_favorites(user_id, book_id):
         return jsonify({'error': 'user not found'}), 404
 
 
-@app.route("/favorites/<int:user_id>/delete/<string:book_id>", methods=["POST"])
+@app.route("/favorites/<string:user_id>/delete/<string:book_id>", methods=["POST"])
 def delete_book_id_to_favorites(user_id, book_id):
     '''
     The post request does not need body information, the book_id is given in the url of the request
@@ -385,7 +386,7 @@ def add_book_id_to_read_books(user_id, book_id):
         return jsonify({'error': 'user not found'}), 404
 
 
-@app.route("/read_books/<int:user_id>/delete/<string:book_id>", methods=["POST"])
+@app.route("/read_books/<string:user_id>/delete/<string:book_id>", methods=["POST"])
 def delete_book_id_to_read_books(user_id, book_id):
     '''
     The post request does not need body information, the book_id is given in the url of the request
@@ -517,7 +518,7 @@ def delete_want_to_read(user_id):
         return jsonify({"error": "want_to_read not found"}), 404
     
 
-@app.route("/want_to_reads/<int:user_id>/add/<string:book_id>", methods=["POST"])
+@app.route("/want_to_reads/<string:user_id>/add/<string:book_id>", methods=["POST"])
 def add_book_id_to_want_to_read(user_id, book_id):
     '''
     The post request does not need body information, the book_id is given in the url of the request
@@ -534,7 +535,7 @@ def add_book_id_to_want_to_read(user_id, book_id):
         return jsonify({'error': 'user not found'}), 404
 
 
-@app.route("/want_to_reads/<int:user_id>/delete/<string:book_id>", methods=["POST"])
+@app.route("/want_to_reads/<string:user_id>/delete/<string:book_id>", methods=["POST"])
 def delete_book_id_to_want_to_read(user_id, book_id):
     '''
     The post request does not need body information, the book_id is given in the url of the request
@@ -574,7 +575,7 @@ def get_recommendations(user_id):
         standard_genre: str = "Juvenile Fiction"
         get_recommended_books = requests.get(f'https://www.googleapis.com/books/v1/volumes?q=subject:"{standard_genre}"&printType=books&projection=full')
 
-        return jsonify({"recommendations": get_recommended_books.json(), "genre": standard_genre})
+        return jsonify({"recommendations": get_recommended_books.json(), "genre": "Juvenile Fiction"})
 
     favorites: list = []
     genre_ranking: dict = {}
