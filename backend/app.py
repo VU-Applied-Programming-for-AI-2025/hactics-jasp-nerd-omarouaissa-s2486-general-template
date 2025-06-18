@@ -723,8 +723,6 @@ def chat_endpoint():
             "status": "error"
         }), 500
 
-if __name__ == "__main__":
-    app.run(debug=True)
 
 def book_search_title(query):
     spliced = query.lower().split()
@@ -844,3 +842,7 @@ def get_sorted_reviews():
     reviews = Review.query.order_by(type_order).all()
 
     return jsonify([{"user": review.user, "rating":review.rating, "message":review.message, "date":review.date.isoformat()} for review in reviews]) 
+
+
+if __name__ == "__main__":
+    app.run(debug=True)

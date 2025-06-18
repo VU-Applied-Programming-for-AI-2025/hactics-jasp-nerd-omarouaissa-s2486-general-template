@@ -1,6 +1,6 @@
 import unittest, requests
 
-from reviews import Review, app, db
+# from reviews import Review, app, db
 
 url: str = "http://127.0.0.1:5000"
 
@@ -9,7 +9,7 @@ class TestReview(unittest.TestCase):
     def setUp(self):
         pass
 
-
+    
     def test_submit_review(self):
         submit_url = url+"/submit_review"
 
@@ -99,3 +99,14 @@ class TestReview(unittest.TestCase):
 
         response = requests.get(f"{url}/reviews_sorted?sort_by=rating&order=mediocre_first")
         self.assertEqual(response.status_code, 404)
+    
+
+    def test_get_reviews_by_book_id(self):
+        submit_request = requests.post(url+"/submit_review", json={"book_id": "XjYQCwAAQBAJ", "user": "newuser", "rating": 4.2, "message": "This was quite enjoyable"})
+        self.assertEqual(submit_request.status_code, 201)
+
+        get_request = requests.get(url+"/reviews_book/XjYQCwAAQBAJ")
+        self.assertEqual(get_request.status_code, 200)
+        self.assertEqual(get_request.json()['reviews'], [{"book_id": "XjYQCwAAQBAJ", "user": "newuser", "rating": 4.2, "message": "This was quite enjoyable"}])
+
+        
