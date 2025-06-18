@@ -669,7 +669,9 @@ def book_search_title(query):
 @app.route("/submit_review", methods=["POST"])
 
 def submit_review():
-
+    '''
+    Lets the user submit a review about a book they've written.
+    '''
     data = request.get_json()
 
     book_id = data.get("book_id")
@@ -685,8 +687,8 @@ def submit_review():
     if 0.0 > rating or rating > 5.0:
         return jsonify({"Error":"Please pick a number between 0 and 5."}), 400
     
-    book = Book.query.get(book_id)
-    if not book:
+    book = get_book_by_id(book_id)
+    if "error" in book or book.get("kind") != "books#volume":
         return jsonify({"Error":"Book was not found, please pick an existing book within our library."}), 404
     
     review_exists = Review.query.filter_by(user=user, book_id=book_id).first()
@@ -702,7 +704,9 @@ def submit_review():
 @app.route("/update_review/<int:review_id>", methods=["PUT"])
 
 def update_review(review_id):
-
+    '''
+    Lets the user update one of their existing reviews.
+    '''
     data = request.get_json()
 
     updated_rating = data.get("rating")
@@ -729,7 +733,9 @@ def update_review(review_id):
 @app.route("/delete_review", methods=["DELETE"])
 
 def delete_review_by_user():
-
+    '''
+    Lets the user delete one of their existing reviews.
+    '''
     data = request.get_json()
 
     user = data.get("user")
@@ -748,7 +754,10 @@ def delete_review_by_user():
 @app.route("/reviews_sorted")
 
 def get_sorted_reviews():
-
+    '''
+    Lets the user sort reviews of a book by their rating or date in either
+    an ascending or descending order.
+    '''
     sort_by = request.args.get("sort_by", "rating")
     order = request.args.get("order", "asc")
 
