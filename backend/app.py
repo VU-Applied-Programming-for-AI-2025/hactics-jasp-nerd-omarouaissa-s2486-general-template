@@ -753,9 +753,6 @@ def chat_endpoint() -> Any:
             "status": "error"
         }), 500
 
-if __name__ == "__main__":
-    app.run(debug=True)
-
 def book_search_title(query: str) -> List[Dict[str, Any]]:
     '''
     Searches for books by title using the Google Books API and returns a list of matching book items.
