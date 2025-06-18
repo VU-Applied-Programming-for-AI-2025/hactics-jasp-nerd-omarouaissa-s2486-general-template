@@ -66,14 +66,10 @@ class WantToRead(db.Model):
             "book_list_id": self.book_list_id
         }
     
-class Book(db.Model):
-    __tablename__ = 'book'
-    id = db.Column(db.Integer, primary_key=True)
-    
 class Review(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    book_id = db.Column(db.String(15), db.ForeignKey("book.id"), nullable=False)
+    book_id = db.Column(db.String(15), nullable=False)
     user = db.Column(db.String(30), nullable=False)
     rating = db.Column(db.Float, nullable=False)
     date = db.Column(db.DateTime, default=datetime.utcnow)
