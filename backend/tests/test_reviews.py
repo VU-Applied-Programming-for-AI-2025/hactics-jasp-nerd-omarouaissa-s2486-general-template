@@ -1,41 +1,101 @@
-import unittest
+import unittest, requests
 
-from reviews import Review, ReviewManager, Book
+from reviews import Review, app, db
 
+url: str = "http://127.0.0.1:5000"
 
 class TestReview(unittest.TestCase):
 
     def setUp(self):
-        self.review = Review()
-        self.review_manager = ReviewManager()
+        pass
 
-    def test_user_not_found_del(self):
-        answer = self.review_manager.del_review("Marc Anthony")
-        self.assertEqual("User not found, please pick a user that has made a review.", answer)
 
-    def test_cancel_deletion(self):
-        answer = self.review_manager.del_review("Cancel")
-        self.assertEqual("Deletion has been canceled.", answer)
+    def test_submit_review(self):
+        submit_url = url+"/submit_review"
 
-    def test_review_updated(self):
-        answer = self.review.update_review(4.5, "Not at any point in this book was I able to predict what was going to happen.")
-        self.assertEqual("Your rating of 1Q84 has been updated to 4.5 out of 5 and your message has been updated to 'Not at any point in this book was I able to predict what was going to happen.'.", answer)
+        submit_request = requests.post(submit_url, json={"book_id": "9780140449136", "user": "Anonymous", "rating": 4.2, "message": "This was quite enjoyable"})
+        self.assertEqual(submit_request.status_code, 201)
 
-    def test_update_score_above_5(self):
-        answer = self.review.update_review(5.1, "Not at any point in this book was I able to predict what was going to happen.")
-        self.assertEqual("Please pick a number between 0 and 5.", answer)
+        submit_request_2 = requests.post(submit_url, json={"book_id": "9780140449136", "user": "Anonymous", "rating": 4.8, "message": "After reading this a second time, it was even better!"})
+        self.assertEqual(submit_request_2.status_code, 400)
 
-    def test_create_score_above_5(self):
-        answer = self.review.create_review("1Q84", 5.1, "Not at any point in this book was I able to predict what was going to happen.")
-        self.assertEqual("Please pick a number between 0 and 5.", answer)
+        submit_request_3 = requests.post(submit_url, json={"book_id": "9780140449136", "user": "User_1", "rating": 9.3, "message": "Absolutely amazing!!!"})
+        self.assertEqual(submit_request_3.status_code, 400)
 
-    def test_book_exists(self):
-        answer = self.review.create_review("Fake Book part 1", 4.3, "This book was amazing")
-        self.assertEqual("Book was not found, please pick an existing book within our library.", answer)
-    
-    def test_review_created(self):
-        answer = self.review.create_review("1Q84", 4.5, "Not at any point in this book was I able to predict what was going to happen.")
-        self.assertEqual((
-            f"Your rating for 1Q84 is 4.5 and your review was:\n"
-            f"Not at any point in this book was I able to predict what was going to happen."), answer)
-    
+        submit_request_4 = requests.post(submit_url, json={"book_id": "9780140449136", "user": "bookhater23", "rating": "bad book", "message": "I hated everything about this book >:("})
+        self.assertEqual(submit_request_4.status_code, 400)
+
+        submit_request_5 = requests.post(submit_url, json={"book_id": "The Catcher in the Rye", "user": "Amazed_Unicorn", "rating": 4.5, "message": "I liked this book a lot."})
+        self.assertEqual(submit_request_5.status_code, 404)
+
+    def test_update_review(self):
+        submit_url = url+"/submit_review"
+        submit_request = requests.post(submit_url, json={"book_id": "9780140449136", "user": "Anonymous", "rating": 4.2, "message": "This was quite enjoyable"})
+        review_id = submit_request.json().get("review_id")
+        self.assertIsNotNone(review_id)
+
+        update_url = f"{url}/update_review/{review_id}"
+
+        update_request = requests.put(update_url, json={"rating": 2.8, "message":"The story has good potential but the execution was very mediocre."})
+        self.assertEqual(update_request.status_code, 200)
+
+        update_request_2 = requests.put(update_url, json={"rating":"11", "message": "I loved every single bit about this book, 11/10."})
+        self.assertEqual(update_request_2.status_code, 400)
+
+        update_request_3 = requests.put(update_url, json={"rating":"Great", "message": "Writer did a great job!"})
+        self.assertEqual(update_request_3.status_code, 400)
+
+    def test_delete_review(self):
+        submit_url = url+"/submit_review"
+        submit_request = requests.post(submit_url, json={"book_id": "9780140449136", "user": "Anonymous", "rating": 4.2, "message": "This was quite enjoyable"})
+
+        delete_url = url+"/delete_review"
+
+        delete_request = requests.delete(delete_url, json={"user":submit_request.json().get("user"), "book_id":submit_request.json().get("book_id")})
+        self.assertEqual(delete_request.status_code, 200)
+
+        delete_request_2 = requests.delete(delete_url, json={"user":"TheOneAndOnly", "book_id":"9780140449136"})
+        self.assertEqual(delete_request_2.status_code, 404)
+
+
+    def test_sort_reviews(self):
+        get_request = requests.get(url+"/reviews_sorted")
+        self.assertEqual(get_request.status_code, 200)
+
+        rating_asc_url = requests.get(f"{url}/reviews_sorted?sort_by=rating&order=asc")
+        self.assertEqual(rating_asc_url.status_code, 200)
+
+        reviews = rating_asc_url.json()
+        ratings = [r["rating"] for r in reviews]
+        self.assertEqual(ratings, sorted(ratings))
+
+
+        rating_desc_url = requests.get(f"{url}/reviews_sorted?sort_by=rating&order=desc")
+        self.assertEqual(rating_desc_url.status_code, 200)
+
+        reviews = rating_desc_url.json()
+        ratings = [r["rating"] for r in reviews]
+        self.assertEqual(ratings, sorted(ratings, reverse=True))
+
+
+        date_asc_url = requests.get(f"{url}/reviews_sorted?sort_by=date&order=asc")
+        self.assertEqual(date_asc_url.status_code, 200)
+
+        reviews = date_asc_url.json()
+        dates = [r["date"] for r in reviews]
+        self.assertEqual(dates, sorted(dates))
+        
+
+        date_desc_url = requests.get(f"{url}/reviews_sorted?sort_by=date&order=desc")
+        self.assertEqual(date_desc_url.status_code, 200)
+
+        reviews = date_desc_url.json()
+        dates = [r["date"] for r in reviews]
+        self.assertEqual(dates, sorted(dates, reverse=True))
+
+
+        response = requests.get(f"{url}/reviews_sorted?sort_by=genre&order=asc")
+        self.assertEqual(response.status_code, 404)
+
+        response = requests.get(f"{url}/reviews_sorted?sort_by=rating&order=mediocre_first")
+        self.assertEqual(response.status_code, 404)
