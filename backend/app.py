@@ -873,26 +873,6 @@ def get_reviews_by_book_id(book_id):
         return jsonify({"reviews": None})
 
 
-
-@app.route("/reviews_book/<string:book_id>", methods=["GET"])
-def get_reviews_by_book_id(book_id):
-    '''
-    Gets all reviews related to the book with book_id
-    '''
-
-    all_reviews = Review.query.all()
-
-    reviews_with_book_id: list = []
-    for review in all_reviews:
-        if review.book_id == book_id:
-            reviews_with_book_id.append({"user": review.user, "rating": review.rating, "message": review.message, "date": review.date, "book_id": review.book_id})
-
-    if reviews_with_book_id:
-        return jsonify({"reviews": reviews_with_book_id})
-    else:
-        return jsonify({"reviews": None})
-
-
 if __name__ == "__main__":
     app.run(debug=True)
 
