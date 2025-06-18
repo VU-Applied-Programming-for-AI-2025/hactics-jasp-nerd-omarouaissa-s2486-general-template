@@ -8,12 +8,7 @@ import os
 from dotenv import load_dotenv
 import requests
 import os
-<<<<<<< HEAD
 from datetime import datetime
-=======
-import datetime
-
->>>>>>> 67a4a6c96af531e116726cca236a5247cd1d7cd5
 # Run website --> python backend/app.py in cmd
 load_dotenv()
 
