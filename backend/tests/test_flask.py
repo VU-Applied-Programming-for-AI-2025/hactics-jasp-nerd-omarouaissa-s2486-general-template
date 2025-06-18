@@ -40,7 +40,7 @@ class test_flask_favorites(unittest.TestCase):
         post_request2 = requests.post(f"{BASE_URL}/favorites", json=
         {
             "user": "user2",
-            "book_list_id": {"list": ["XjYQCwAAQBAJ", "7L1_BAAAQBAJ"]}
+            "book_list_id": {"list": ["XjYQCwAAQBAJ", "abYKXvCwEToC"]}
         })
 
         self.assertEqual(post_request2.status_code, 201)
@@ -71,7 +71,7 @@ class test_flask_favorites(unittest.TestCase):
         self.assertEqual(get_request2.status_code, 200)
         self.assertEqual(get_request2.json(), {
             "user": "user2",
-            "book_list_id": {"list": ["XjYQCwAAQBAJ", "7L1_BAAAQBAJ"]}
+            "book_list_id": {"list": ["XjYQCwAAQBAJ", "abYKXvCwEToC"]}
         })
 
     def test_0031_get_favorites(self):
@@ -83,7 +83,7 @@ class test_flask_favorites(unittest.TestCase):
         self.assertEqual(get_request.status_code, 200)
         self.assertEqual(get_request.json(), {"favorites": [
             {'user': "user1", 'book_list_id': {'list': ['book1', 'book2']}}, 
-            {'user': "user2", 'book_list_id': {'list': ['book3', 'book4']}}]})
+            {'user': "user2", 'book_list_id': {'list': ['XjYQCwAAQBAJ', 'abYKXvCwEToC']}}]})
         
 
     def test_0040_update_favorite(self):
@@ -211,7 +211,7 @@ class test_flask_favorites(unittest.TestCase):
         get_request = requests.get(BASE_URL+"/most_favorites")
 
         self.assertEqual(get_request.status_code, 200)
-        self.assertEqual(get_request.json()['book_list_id']['list'][0], "XjYQCwAAQBAJ")
+        self.assertEqual(get_request.json()['most_favorites'][0], "XjYQCwAAQBAJ")
 
         #if books have the same favorites, a book should still be returned
         requests.post(BASE_URL+'/favorites/user3/delete/XjYQCwAAQBAJ')
@@ -219,7 +219,7 @@ class test_flask_favorites(unittest.TestCase):
         get_request = requests.get(BASE_URL+"/most_favorites")
 
         self.assertEqual(get_request.status_code, 200)
-        self.assertIsInstance(get_request.json()['book_list_id']['list'][0], str)
+        self.assertIsInstance(get_request.json()['most_favorites'][0], str)
 
 
 if __name__ == "__main__":

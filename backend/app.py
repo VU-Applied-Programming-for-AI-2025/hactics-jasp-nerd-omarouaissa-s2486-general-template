@@ -612,6 +612,31 @@ def get_recommendations(user_id):
     return jsonify({"recommendations": get_recommended_books.json(), "genre": most_common_genre})
 
 
+@app.route("/most_favorites", methods=["GET"])
+def get_most_favorites():
+    '''
+    Returns a list of maximum 10 most favorite books according to the amount of favorites it has.
+    '''
+
+    favorites = Favorite.query.all()
+    
+
+    favorites_ranking: dict = {}
+
+    for favorite in favorites:
+        book_ids = favorite.book_list_id['list']
+
+        for book_id in book_ids:
+            favorites_ranking[book_id] = favorites_ranking.get(book_id, 0) + 1
+
+    # sorts the list based on the values, high to low.
+    favorites_sorted =  dict(sorted(favorites_ranking.items(), key=lambda x:x[1], reverse=True))
+    top_favorites = list(favorites_sorted.keys())
+    print(top_favorites)
+
+    return jsonify({"most_favorites": top_favorites})
+
+
 #search region
 @app.route('/search', methods=['GET'])
 def search():
