@@ -57,7 +57,6 @@ with app.app_context():
 
 @app.route("/")
 def home():
-
     return jsonify({"message": "Welcome to BookBuddy"})
 
 
@@ -454,13 +453,14 @@ def get_book_by_id(book_id):
     book_request = requests.get(f"https://www.googleapis.com/books/v1/volumes/{book_id}")
     return book_request.json()
 
-@app.route("/recommendations/<int:user_id>", methods=["GET"])
+@app.route("/recommendations/<string:user_id>", methods=["GET"])
 def get_recommendations(user_id):
     '''
     Gets recommmendations for user. If user does not exist it will still return recommendations.
     '''
     favorite_book_ids = Favorite.query.get(user_id)
 
+    # if the user does not exist or does not have favorite books
     if not favorite_book_ids:
         standard_genre: str = "Juvenile Fiction"
         get_recommended_books = requests.get(f'https://www.googleapis.com/books/v1/volumes?q=subject:"{standard_genre}"&printType=books&projection=full')
@@ -490,7 +490,7 @@ def get_recommendations(user_id):
         most_common_genre: str = None
         highest_genre_count: int = 0
         for genre, count in genre_ranking.items():
-            if count > highest_genre_count and genre != "General":
+            if count > highest_genre_count and genre != "General": #exclude general genre
                 highest_genre_count = count
                 most_common_genre = genre
 
@@ -498,8 +498,6 @@ def get_recommendations(user_id):
 
     # search books by genre:
     get_recommended_books = requests.get(f'https://www.googleapis.com/books/v1/volumes?q=subject:"{most_common_genre}"&printType=books&projection=full')
-
-    # print("reco: ", get_recommended_books)
 
     return jsonify({"recommendations": get_recommended_books.json(), "genre": most_common_genre})
 
