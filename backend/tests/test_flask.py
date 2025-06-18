@@ -40,7 +40,7 @@ class test_flask_favorites(unittest.TestCase):
         post_request2 = requests.post(f"{BASE_URL}/favorites", json=
         {
             "user": "user2",
-            "book_list_id": {"list": ["book3", "book4"]}
+            "book_list_id": {"list": ["XjYQCwAAQBAJ", "7L1_BAAAQBAJ"]}
         })
 
         self.assertEqual(post_request2.status_code, 201)
@@ -71,7 +71,7 @@ class test_flask_favorites(unittest.TestCase):
         self.assertEqual(get_request2.status_code, 200)
         self.assertEqual(get_request2.json(), {
             "user": "user2",
-            "book_list_id": {"list": ["book3", "book4"]}
+            "book_list_id": {"list": ["XjYQCwAAQBAJ", "7L1_BAAAQBAJ"]}
         })
 
     def test_0031_get_favorites(self):
@@ -200,6 +200,27 @@ class test_flask_favorites(unittest.TestCase):
         #standard genre if user does not exist or is new: Juvenile Fiction
         self.assertEqual(get_request2.json()["genre"], "Juvenile Fiction")
         self.assertEqual(len(get_request2.json()["recommendations"]['items']), 10)
+
+    
+    def test_0100_get_most_favorite(self):
+        '''
+        Tests the get most favorites function.
+        '''
+        requests.post(BASE_URL+'/favorites/user3/add/XjYQCwAAQBAJ')
+
+        get_request = requests.get(BASE_URL+"/most_favorites")
+
+        self.assertEqual(get_request.status_code, 200)
+        self.assertEqual(get_request.json()['book_list_id']['list'][0], "XjYQCwAAQBAJ")
+
+        #if books have the same favorites, a book should still be returned
+        requests.post(BASE_URL+'/favorites/user3/delete/XjYQCwAAQBAJ')
+
+        get_request = requests.get(BASE_URL+"/most_favorites")
+
+        self.assertEqual(get_request.status_code, 200)
+        self.assertIsInstance(get_request.json()['book_list_id']['list'][0], str)
+
 
 if __name__ == "__main__":
     unittest.main()
