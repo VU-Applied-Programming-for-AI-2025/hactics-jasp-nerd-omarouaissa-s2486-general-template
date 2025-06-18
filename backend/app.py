@@ -640,6 +640,10 @@ def get_most_favorites():
 #search region
 @app.route('/search', methods=['GET'])
 def search():
+    '''
+    This is the search endpoint for the google books api.
+    It will return a list of books based on the query.
+    '''
     query = request.args.get('q')
     order_by = request.args.get('order_by')
     lg = request.args.get('lang')
@@ -663,6 +667,10 @@ def search():
 
 @app.route("/api/chat", methods=["POST"])
 def chat_endpoint():
+    '''
+    This is the chat endpoint for the gemini api.
+    It will return a response from the gemini api.
+    '''
     try:
         data = request.get_json()
         if not data or "message" not in data or "user_id" not in data:
@@ -727,6 +735,9 @@ if __name__ == "__main__":
     app.run(debug=True)
 
 def book_search_title(query):
+    '''
+    Searches for books by title using the Google Books API and returns a list of matching book items.
+    '''
     spliced = query.lower().split()
     spliced = "+".join(spliced)
     resonse = requests.request("GET",f"https://www.googleapis.com/books/v1/volumes?q=intitle:{spliced}&orderBY=relevance&key={os.environ["API_KEY"]}" )
