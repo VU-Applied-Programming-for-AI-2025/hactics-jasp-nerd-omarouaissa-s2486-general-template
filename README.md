@@ -1,3 +1,33 @@
-# Book Buddy
+# BookBuddy
 
-This webapp is a digital library that allows users to store read books, books that the user wants to read, and users favourite books. Users can also read and write reviews about books. The webapp allows the search for books, and gives book recommendations based on favourites and read books. It allows for users to find books that suits their taste and find other users with similar tastes to connect with by showing their personal booklist.
+BookBuddy is a digital library web application that allows users to manage their personal book lists, including books they have read, want to read, and their favorites. Users can search for books, get personalized recommendations, and write/read reviews. The app uses the Google Books API and integrates with Gemini AI for chat-based book recommendations.
+
+
+## Setup Instructions
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/VU-Applied-Programming-for-AI-2025/hactics-jasp-nerd-omarouaissa-s2486-general-template
+cd hactics-jasp-nerd-omarouaissa-s2486-general-template
+```
+
+### 2. Install Dependencies
+Make sure you have Python 3.8+ and pip installed. Then run:
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Environment Variables
+Create a `.env` file with the following keys:
+```
+API_KEY=your_google_books_api_key
+GEMINI_API_KEY=your_gemini_api_key
+```
+
+### 4. Run the Application
+```bash
+python backend/app.py
+```
+The backend will start on `http://127.0.0.1:5000/` by default.
+
+
