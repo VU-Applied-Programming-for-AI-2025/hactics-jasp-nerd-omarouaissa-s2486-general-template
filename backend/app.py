@@ -8,8 +8,7 @@ import os
 from dotenv import load_dotenv
 import requests
 import os
-import datetime
-
+from datetime import datetime
 # Run website --> python backend/app.py in cmd
 load_dotenv()
 
@@ -73,13 +72,13 @@ class Review(db.Model):
     book_id = db.Column(db.String(15), nullable=False)
     user = db.Column(db.String(30), nullable=False)
     rating = db.Column(db.Float, nullable=False)
-    date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    date = db.Column(db.DateTime, default=datetime.utcnow)
     message = db.Column(db.Text)
 
 def search_url_build(query, order_by=None, lg=None, start_index=0, max_results=10, api_key=None):
     base_link = "https://www.googleapis.com/books/v1/volumes"
     params = {
-        "q": query,
+        "q": f"intitle:{query}",
         "startIndex": start_index,
         "maxResults": max_results
     }
@@ -95,8 +94,8 @@ def search_url_build(query, order_by=None, lg=None, start_index=0, max_results=1
     from urllib.parse import urlencode
     query_string = urlencode(params)
     full_url = f"{base_link}?{query_string}"
-
-    #returns full url with all the searches
+    print(query_string, full_url)
+    #returns full url with all the search parameters.
     return full_url
 
 
@@ -237,7 +236,7 @@ def add_book_id_to_favorites(user_id, book_id):
         return jsonify({'error': 'user not found'}), 404
 
 
-@app.route("/favorites/<string:user_id>/delete/<string:book_id>", methods=["POST"])
+@app.route("/favorites/<int:user_id>/delete/<string:book_id>", methods=["POST"])
 def delete_book_id_to_favorites(user_id, book_id):
     '''
     The post request does not need body information, the book_id is given in the url of the request
@@ -730,6 +729,9 @@ def chat_endpoint():
             "error": str(e),
             "status": "error"
         }), 500
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
 def book_search_title(query):
     '''

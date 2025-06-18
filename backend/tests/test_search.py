@@ -19,7 +19,7 @@ class SearchTests(unittest.TestCase):
     def test_filter_search(self):
         #test a filter search, checking to see if params are in place.
         url = search_url_build("flowers", [] )
-        assert "q=flowers" in url
+        assert "q=intitle%3Aflowers" in url
         assert "startIndex=0" in url
         assert "maxResults=10" in url
 
