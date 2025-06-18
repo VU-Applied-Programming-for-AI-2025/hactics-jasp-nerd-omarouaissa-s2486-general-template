@@ -210,6 +210,24 @@ def add_book_id_to_favorites(user_id, book_id):
     else:
         return jsonify({'error': 'user not found'}), 404
 
+@app.route("/favorites/<int:user_id>/remove/<string:book_id>", methods=["DELETE"])
+def remove_book_id_from_favorites(user_id, book_id):
+    '''
+    Removes a specific book_id from the users favorites list.
+    '''
+    favorite = Favorite.query.get(user_id)
+    if favorite:
+        book_list = favorite.book_list_id.get('list', [])
+        if book_id in book_list:
+            book_list.remove(book_id)
+            flag_modified(favorite, 'book_list_id')
+            db.session.commit()
+            return jsonify({'message': f'Book {book_id} deleted.'})
+        else:
+            return jsonify({'error': f'Book {book_id} not found in favorites.'}), 404
+    else:
+        return jsonify({'error': 'user not found'}), 404
+
     
 #endregion
 
@@ -244,7 +262,7 @@ def get_read_book_object(user_id):
     Returns users read books according to the user id.
     It returns the a list of books, the same as Google books.
     '''
-    read_books = Favorite.query.get(user_id)
+    read_books = ReadBooks.query.get(user_id)
     
     if read_books:
         read_book_list = read_books.to_dict()['book_list_id']['list']
@@ -318,6 +336,24 @@ def add_book_id_to_read_books(user_id, book_id):
         flag_modified(read_book, 'book_list_id')
         db.session.commit()
         return jsonify({'created': read_book.to_dict()})
+    else:
+        return jsonify({'error': 'user not found'}), 404
+
+@app.route("/read_books/<int:user_id>/remove/<string:book_id>", methods=["DELETE"])
+def remove_book_id_from_read_books(user_id, book_id):
+    '''
+    Removes a specific book_id from the users read books list.
+    '''
+    read_book = ReadBooks.query.get(user_id)
+    if read_book:
+        book_list = read_book.book_list_id.get('list', [])
+        if book_id in book_list:
+            book_list.remove(book_id)
+            flag_modified(read_book, 'book_list_id')
+            db.session.commit()
+            return jsonify({'message': f'Book {book_id} deleted.'})
+        else:
+            return jsonify({'error': f'Book {book_id} not found in read books.'}), 404
     else:
         return jsonify({'error': 'user not found'}), 404
 
@@ -428,6 +464,24 @@ def add_book_id_to_want_to_read(user_id, book_id):
         flag_modified(want_to_read, 'book_list_id')
         db.session.commit()
         return jsonify({'created': want_to_read.to_dict()})
+    else:
+        return jsonify({'error': 'user not found'}), 404
+
+@app.route("/want_to_reads/<int:user_id>/remove/<string:book_id>", methods=["DELETE"])
+def remove_book_id_from_want_to_read(user_id, book_id):
+    '''
+    Removes a specific book_id from the users want to read list.
+    '''
+    want_to_read = WantToRead.query.get(user_id)
+    if want_to_read:
+        book_list = want_to_read.book_list_id.get('list', [])
+        if book_id in book_list:
+            book_list.remove(book_id)
+            flag_modified(want_to_read, 'book_list_id')
+            db.session.commit()
+            return jsonify({'message': f'Book {book_id} deleted.'})
+        else:
+            return jsonify({'error': f'Book {book_id} not found in want to read.'}), 404
     else:
         return jsonify({'error': 'user not found'}), 404
 
