@@ -7,7 +7,8 @@ BASE_URL = os.environ.get("BOOKBUDDY_BASE_URL", "http://127.0.0.1:5000")
 
 class test_flask_favorites(unittest.TestCase):
     '''
-    To run these tests, you should run the flask application and clear or delete the database.
+    To run these tests, you should run the flask application.
+    Clear or delete the database, this assures that nothing will change the outcomes of the tests.
     '''
     
     def setUp(self):
@@ -220,6 +221,18 @@ class test_flask_favorites(unittest.TestCase):
 
         self.assertEqual(get_request.status_code, 200)
         self.assertIsInstance(get_request.json()['most_favorites'][0], str)
+
+
+    def test_9999_cleanup(self):
+        '''
+        Removes the created favorites.
+        '''
+        delete_request = requests.delete(f"{BASE_URL}/favorites/user2")
+        self.assertEqual(delete_request.status_code, 200)
+
+        delete_request = requests.delete(f"{BASE_URL}/favorites/user3")
+        self.assertEqual(delete_request.status_code, 200)
+
 
 
 if __name__ == "__main__":
