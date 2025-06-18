@@ -8,7 +8,12 @@ import os
 from dotenv import load_dotenv
 import requests
 import os
+<<<<<<< HEAD
 from datetime import datetime
+=======
+import datetime
+
+>>>>>>> 67a4a6c96af531e116726cca236a5247cd1d7cd5
 # Run website --> python backend/app.py in cmd
 load_dotenv()
 
@@ -65,7 +70,7 @@ class WantToRead(db.Model):
             "user": self.user,
             "book_list_id": self.book_list_id
         }
-
+    
 class Review(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
@@ -385,7 +390,7 @@ def add_book_id_to_read_books(user_id, book_id):
         return jsonify({'error': 'user not found'}), 404
 
 
-@app.route("/read_books/<int:user_id>/delete/<string:book_id>", methods=["POST"])
+@app.route("/read_books/<string:user_id>/delete/<string:book_id>", methods=["POST"])
 def delete_book_id_to_read_books(user_id, book_id):
     '''
     The post request does not need body information, the book_id is given in the url of the request
@@ -517,7 +522,7 @@ def delete_want_to_read(user_id):
         return jsonify({"error": "want_to_read not found"}), 404
     
 
-@app.route("/want_to_reads/<int:user_id>/add/<string:book_id>", methods=["POST"])
+@app.route("/want_to_reads/<string:user_id>/add/<string:book_id>", methods=["POST"])
 def add_book_id_to_want_to_read(user_id, book_id):
     '''
     The post request does not need body information, the book_id is given in the url of the request
@@ -534,7 +539,7 @@ def add_book_id_to_want_to_read(user_id, book_id):
         return jsonify({'error': 'user not found'}), 404
 
 
-@app.route("/want_to_reads/<int:user_id>/delete/<string:book_id>", methods=["POST"])
+@app.route("/want_to_reads/<string:user_id>/delete/<string:book_id>", methods=["POST"])
 def delete_book_id_to_want_to_read(user_id, book_id):
     '''
     The post request does not need body information, the book_id is given in the url of the request
@@ -574,7 +579,7 @@ def get_recommendations(user_id):
         standard_genre: str = "Juvenile Fiction"
         get_recommended_books = requests.get(f'https://www.googleapis.com/books/v1/volumes?q=subject:"{standard_genre}"&printType=books&projection=full')
 
-        return jsonify({"recommendations": get_recommended_books.json(), "genre": standard_genre})
+        return jsonify({"recommendations": get_recommended_books.json(), "genre": "Juvenile Fiction"})
 
     favorites: list = []
     genre_ranking: dict = {}
@@ -611,9 +616,38 @@ def get_recommendations(user_id):
     return jsonify({"recommendations": get_recommended_books.json(), "genre": most_common_genre})
 
 
+@app.route("/most_favorites", methods=["GET"])
+def get_most_favorites():
+    '''
+    Returns a list of maximum 10 most favorite books according to the amount of favorites it has.
+    '''
+
+    favorites = Favorite.query.all()
+    
+
+    favorites_ranking: dict = {}
+
+    for favorite in favorites:
+        book_ids = favorite.book_list_id['list']
+
+        for book_id in book_ids:
+            favorites_ranking[book_id] = favorites_ranking.get(book_id, 0) + 1
+
+    # sorts the list based on the values, high to low.
+    favorites_sorted =  dict(sorted(favorites_ranking.items(), key=lambda x:x[1], reverse=True))
+    top_favorites = list(favorites_sorted.keys())
+    print(top_favorites)
+
+    return jsonify({"most_favorites": top_favorites})
+
+
 #search region
 @app.route('/search', methods=['GET'])
 def search():
+    '''
+    This is the search endpoint for the google books api.
+    It will return a list of books based on the query.
+    '''
     query = request.args.get('q')
     order_by = request.args.get('order_by')
     lg = request.args.get('lang')
@@ -637,6 +671,10 @@ def search():
 
 @app.route("/api/chat", methods=["POST"])
 def chat_endpoint():
+    '''
+    This is the chat endpoint for the gemini api.
+    It will return a response from the gemini api.
+    '''
     try:
         data = request.get_json()
         if not data or "message" not in data or "user_id" not in data:
@@ -701,6 +739,9 @@ if __name__ == "__main__":
     app.run(debug=True)
 
 def book_search_title(query):
+    '''
+    Searches for books by title using the Google Books API and returns a list of matching book items.
+    '''
     spliced = query.lower().split()
     spliced = "+".join(spliced)
     resonse = requests.request("GET",f"https://www.googleapis.com/books/v1/volumes?q=intitle:{spliced}&orderBY=relevance&key={os.environ["API_KEY"]}" )
@@ -818,3 +859,27 @@ def get_sorted_reviews():
     reviews = Review.query.order_by(type_order).all()
 
     return jsonify([{"user": review.user, "rating":review.rating, "message":review.message, "date":review.date.isoformat()} for review in reviews]) 
+
+
+@app.route("/reviews_book/<string:book_id>", methods=["GET"])
+def get_reviews_by_book_id(book_id):
+    '''
+    Gets all reviews related to the book with book_id
+    '''
+
+    all_reviews = Review.query.all()
+
+    reviews_with_book_id: list = []
+    for review in all_reviews:
+        if review.book_id == book_id:
+            reviews_with_book_id.append({"user": review.user, "rating": review.rating, "message": review.message, "date": review.date, "book_id": review.book_id})
+
+    if reviews_with_book_id:
+        return jsonify({"reviews": reviews_with_book_id})
+    else:
+        return jsonify({"reviews": None})
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
+

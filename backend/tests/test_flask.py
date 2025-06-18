@@ -7,7 +7,8 @@ BASE_URL = os.environ.get("BOOKBUDDY_BASE_URL", "http://127.0.0.1:5000")
 
 class test_flask_favorites(unittest.TestCase):
     '''
-    To run these tests, you should run the flask application and clear or delete the database.
+    To run these tests, you should run the flask application.
+    Clear or delete the database, this assures that nothing will change the outcomes of the tests.
     '''
     
     def setUp(self):
@@ -40,7 +41,7 @@ class test_flask_favorites(unittest.TestCase):
         post_request2 = requests.post(f"{BASE_URL}/favorites", json=
         {
             "user": "user2",
-            "book_list_id": {"list": ["book3", "book4"]}
+            "book_list_id": {"list": ["XjYQCwAAQBAJ", "abYKXvCwEToC"]}
         })
 
         self.assertEqual(post_request2.status_code, 201)
@@ -71,7 +72,7 @@ class test_flask_favorites(unittest.TestCase):
         self.assertEqual(get_request2.status_code, 200)
         self.assertEqual(get_request2.json(), {
             "user": "user2",
-            "book_list_id": {"list": ["book3", "book4"]}
+            "book_list_id": {"list": ["XjYQCwAAQBAJ", "abYKXvCwEToC"]}
         })
 
     def test_0031_get_favorites(self):
@@ -83,7 +84,7 @@ class test_flask_favorites(unittest.TestCase):
         self.assertEqual(get_request.status_code, 200)
         self.assertEqual(get_request.json(), {"favorites": [
             {'user': "user1", 'book_list_id': {'list': ['book1', 'book2']}}, 
-            {'user': "user2", 'book_list_id': {'list': ['book3', 'book4']}}]})
+            {'user': "user2", 'book_list_id': {'list': ['XjYQCwAAQBAJ', 'abYKXvCwEToC']}}]})
         
 
     def test_0040_update_favorite(self):
@@ -158,6 +159,81 @@ class test_flask_favorites(unittest.TestCase):
 
         self.assertEqual(get_request.status_code, 200)
         self.assertEqual(get_request.json()["book_list_id"]["list"][2], "book24534")
+
+    def test_0081_delete_book_id_from_favorites(self):
+        '''
+        Tests the delete book id to favorites request.
+        '''
+        post_request = requests.post(BASE_URL+'/favorites/user3/delete/book24534')
+        self.assertEqual(post_request.status_code, 200)
+
+        get_request = requests.get(BASE_URL+'/favorites/user3')
+
+        self.assertEqual(get_request.status_code, 200)
+        self.assertEqual(get_request.json()["book_list_id"], {"list": ["5zl-KQEACAAJ", "F1wgqlNi8AMC"]})
+
+
+    def test_0090_get_recommendations(self):
+        '''
+        Tests the get recommendations for user function.
+        {
+            "recommendations": [list of recommended books],
+            "genre": genre_of_recommended_books
+        }
+        '''
+
+        #genre: Young Adult Fiction
+        requests.post(BASE_URL+'/favorites/user3/add/9XYlEQAAQBAJ')
+        requests.post(BASE_URL+'/favorites/user3/add/Yz8Fnw0PlEQC')
+        requests.post(BASE_URL+'/favorites/user3/add/7L1_BAAAQBAJ')
+
+        get_request = requests.get(BASE_URL+"/recommendations/user3")
+
+        self.assertEqual(get_request.status_code, 200)
+        self.assertEqual(get_request.json()["genre"], "Young Adult Fiction")
+        self.assertEqual(len(get_request.json()["recommendations"]['items']), 10)
+
+        #user 4 does not exist, but we still want recommendations
+        get_request2 = requests.get(BASE_URL+"/recommendations/user4")
+
+        self.assertEqual(get_request2.status_code, 200)
+        
+        #standard genre if user does not exist or is new: Juvenile Fiction
+        self.assertEqual(get_request2.json()["genre"], "Juvenile Fiction")
+        self.assertEqual(len(get_request2.json()["recommendations"]['items']), 10)
+
+    
+    def test_0100_get_most_favorite(self):
+        '''
+        Tests the get most favorites function.
+        '''
+        requests.post(BASE_URL+'/favorites/user3/add/XjYQCwAAQBAJ')
+
+        get_request = requests.get(BASE_URL+"/most_favorites")
+
+        self.assertEqual(get_request.status_code, 200)
+        self.assertEqual(get_request.json()['most_favorites'][0], "XjYQCwAAQBAJ")
+
+        #if books have the same favorites, a book should still be returned
+        requests.post(BASE_URL+'/favorites/user3/delete/XjYQCwAAQBAJ')
+
+        get_request = requests.get(BASE_URL+"/most_favorites")
+
+        self.assertEqual(get_request.status_code, 200)
+        self.assertIsInstance(get_request.json()['most_favorites'][0], str)
+
+
+    def test_9999_cleanup(self):
+        '''
+        Removes the created favorites.
+        '''
+        delete_request = requests.delete(f"{BASE_URL}/favorites/user2")
+        self.assertEqual(delete_request.status_code, 200)
+
+        delete_request = requests.delete(f"{BASE_URL}/favorites/user3")
+        self.assertEqual(delete_request.status_code, 200)
+
+
 
 if __name__ == "__main__":
     unittest.main()
