@@ -5,7 +5,7 @@ import unittest
 import sys
 import os 
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app import book_search_title, search_url_build
 
