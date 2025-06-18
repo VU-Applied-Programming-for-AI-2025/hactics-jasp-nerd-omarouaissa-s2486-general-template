@@ -65,7 +65,11 @@ class WantToRead(db.Model):
             "user": self.user,
             "book_list_id": self.book_list_id
         }
-
+    
+class Book(db.Model):
+    __tablename__ = 'book'
+    id = db.Column(db.Integer, primary_key=True)
+    
 class Review(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
