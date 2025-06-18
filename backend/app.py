@@ -31,7 +31,7 @@ class Favorite(db.Model):
     '''
     Favorite model, to store list of book id's and the user the favorites belong to.
     '''
-    user = db.Column(db.Integer, primary_key=True)
+    user = db.Column(db.String(100), primary_key=True)
     book_list_id = db.Column(db.JSON)
 
     def to_dict(self):
@@ -44,7 +44,7 @@ class ReadBooks(db.Model):
     '''
     Read books model, stores list of book id's and the user the read books belong to.
     '''
-    user = db.Column(db.Integer, primary_key=True)
+    user = db.Column(db.String(100), primary_key=True)
     book_list_id = db.Column(db.JSON)
 
     def to_dict(self):
@@ -57,7 +57,7 @@ class WantToRead(db.Model):
     '''
     Want to read books model, stores list of book id's and the user the want to read books belong to.
     '''
-    user = db.Column(db.Integer, primary_key=True)
+    user = db.Column(db.String(100), primary_key=True)
     book_list_id = db.Column(db.JSON)
 
     def to_dict(self):
@@ -120,7 +120,7 @@ def get_favorites():
     return jsonify({"favorites": [favorite.to_dict() for favorite in favorites]})
 
 
-@app.route("/favorites/<int:user_id>", methods=["GET"])
+@app.route("/favorites/<string:user_id>", methods=["GET"])
 def get_favorite(user_id):
     '''
     Returns users favorites according to user id.
@@ -133,7 +133,7 @@ def get_favorite(user_id):
     else:
         return jsonify({"error": f"favorite not found for user: {user_id}"}), 404
 
-@app.route("/favorite_books/<int:user_id>", methods=["GET"])
+@app.route("/favorite_books/<string:user_id>", methods=["GET"])
 def get_favorite_books(user_id):
     '''
     Returns users favorite books according to the user id.
@@ -176,7 +176,7 @@ def post_favorites():
 
     return jsonify(new_favorite.to_dict()), 201
 
-@app.route("/favorites/<int:user_id>", methods=["PUT"])
+@app.route("/favorites/<string:user_id>", methods=["PUT"])
 def update_favorites(user_id):
     '''
     Updates favorites for user.
@@ -205,7 +205,7 @@ def update_favorites(user_id):
         return jsonify({"error": "favorite not found"}), 404
 
 
-@app.route("/favorites/<int:user_id>", methods=["DELETE"])
+@app.route("/favorites/<string:user_id>", methods=["DELETE"])
 def delete_favorites(user_id):
     '''
     Deletes the favorites of user with user_id.
@@ -219,7 +219,7 @@ def delete_favorites(user_id):
     else:
         return jsonify({"error": "favorite not found"}), 404
     
-@app.route("/favorites/<int:user_id>/add/<string:book_id>", methods=["POST"])
+@app.route("/favorites/<string:user_id>/add/<string:book_id>", methods=["POST"])
 def add_book_id_to_favorites(user_id, book_id):
     '''
     The post request does not need body information, the book_id is given in the url of the request.
@@ -268,7 +268,7 @@ def get_read_books():
     return jsonify({"read books": [read_book.to_dict() for read_book in read_books]})
 
 
-@app.route("/read_books/<int:user_id>", methods=["GET"])
+@app.route("/read_books/<string:user_id>", methods=["GET"])
 def get_read_book(user_id):
     '''
     Returns users read books according to user id.
@@ -281,13 +281,13 @@ def get_read_book(user_id):
     else:
         return jsonify({"error": f"read_book not found for user: {user_id}"}), 404
 
-@app.route("/read_book_objects/<int:user_id>", methods=["GET"])
+@app.route("/read_book_objects/<string:user_id>", methods=["GET"])
 def get_read_book_object(user_id):
     '''
     Returns users read books according to the user id.
     It returns the a list of books, the same as Google books.
     '''
-    read_books = Favorite.query.get(user_id)
+    read_books = ReadBooks.query.get(user_id)
     
     if read_books:
         read_book_list = read_books.to_dict()['book_list_id']['list']
@@ -324,7 +324,7 @@ def post_read_books():
 
     return jsonify(new_read_book.to_dict()), 201
 
-@app.route("/read_books/<int:user_id>", methods=["PUT"])
+@app.route("/read_books/<string:user_id>", methods=["PUT"])
 def update_read_books(user_id):
     '''
     Updates read books for user.
@@ -353,7 +353,7 @@ def update_read_books(user_id):
         return jsonify({"error": "read_book not found"}), 404
 
 
-@app.route("/read_books/<int:user_id>", methods=["DELETE"])
+@app.route("/read_books/<string:user_id>", methods=["DELETE"])
 def delete_read_books(user_id):
     '''
     Deletes the read books of user with user_id.
@@ -368,7 +368,7 @@ def delete_read_books(user_id):
         return jsonify({"error": "read_book not found"}), 404
 
 
-@app.route("/read_books/<int:user_id>/add/<string:book_id>", methods=["POST"])
+@app.route("/read_books/<string:user_id>/add/<string:book_id>", methods=["POST"])
 def add_book_id_to_read_books(user_id, book_id):
     '''
     The post request does not need body information, the book_id is given in the url of the request
@@ -417,7 +417,7 @@ def get_want_to_reads():
     return jsonify({"want to read books": [want_to_read.to_dict() for want_to_read in want_to_reads]})
 
 
-@app.route("/want_to_reads/<int:user_id>", methods=["GET"])
+@app.route("/want_to_reads/<string:user_id>", methods=["GET"])
 def get_want_to_read(user_id):
     '''
     Returns users want to read books according to user id.
@@ -430,7 +430,7 @@ def get_want_to_read(user_id):
     else:
         return jsonify({"error": f"want_to_read not found for user: {user_id}"}), 404
 
-@app.route("/want_to_read_books/<int:user_id>", methods=["GET"])
+@app.route("/want_to_read_books/<string:user_id>", methods=["GET"])
 def get_want_to_read_books(user_id):
     '''
     Returns users want to read books according to the user id.
@@ -473,7 +473,7 @@ def post_want_to_read_books():
 
     return jsonify(new_want_to_read.to_dict()), 201
 
-@app.route("/want_to_reads/<int:user_id>", methods=["PUT"])
+@app.route("/want_to_reads/<string:user_id>", methods=["PUT"])
 def update_want_to_read(user_id):
     '''
     Updates want to read books for user.
@@ -502,7 +502,7 @@ def update_want_to_read(user_id):
         return jsonify({"error": "want_to_reads not found"}), 404
 
 
-@app.route("/want_to_reads/<int:user_id>", methods=["DELETE"])
+@app.route("/want_to_reads/<string:user_id>", methods=["DELETE"])
 def delete_want_to_read(user_id):
     '''
     Deletes the want to read books of user with user_id.
@@ -639,13 +639,53 @@ def search():
 def chat_endpoint():
     try:
         data = request.get_json()
-        if not data or "message" not in data:
-            return jsonify({"error": "No message provided"}), 400
+        if not data or "message" not in data or "user_id" not in data:
+            return jsonify({"error": "No message or user_id provided"}), 400
 
         user_message = data["message"]
+        user_id = data["user_id"]
+        
+        # Get users book context
+        user_context = "Here's what I know about you:\n"
+        
+        # Get favorites
+        favorites = Favorite.query.get(user_id)
+        if favorites:
+            favorite_books = []
+            for book_id in favorites.book_list_id.get('list', []):
+                book_info = get_book_by_id(book_id)
+                if 'volumeInfo' in book_info:
+                    favorite_books.append(book_info['volumeInfo'].get('title', 'Unknown Title'))
+            if favorite_books:
+                user_context += f"Your favorite books: {', '.join(favorite_books)}\n"
+        
+        # Get read books
+        read = ReadBooks.query.get(user_id)
+        if read:
+            read_books = []
+            for book_id in read.book_list_id.get('list', []):
+                book_info = get_book_by_id(book_id)
+                if 'volumeInfo' in book_info:
+                    read_books.append(book_info['volumeInfo'].get('title', 'Unknown Title'))
+            if read_books:
+                user_context += f"Books you've read: {', '.join(read_books)}\n"
+        
+        # Get want to read books
+        want_to_read = WantToRead.query.get(user_id)
+        if want_to_read:
+            want_to_read_books = []
+            for book_id in want_to_read.book_list_id.get('list', []):
+                book_info = get_book_by_id(book_id)
+                if 'volumeInfo' in book_info:
+                    want_to_read_books.append(book_info['volumeInfo'].get('title', 'Unknown Title'))
+            if want_to_read_books:
+                user_context += f"Books you want to read: {', '.join(want_to_read_books)}\n"
+        
+        # Combine context with user message
+        full_message = f"{user_context}\nUser question: {user_message}"
         
         # Send message to gemini and get response
-        response = chat.send_message(user_message)
+        response = chat.send_message(full_message)
         
         return jsonify({
             "response": response.text,
