@@ -9,28 +9,28 @@ class TestReview(unittest.TestCase):
     def setUp(self):
         pass
 
-    
-    def test_submit_review(self):
+    def test_0010_submit_review(self):
         submit_url = url+"/submit_review"
 
-        submit_request = requests.post(submit_url, json={"book_id": "9780140449136", "user": "Anonymous", "rating": 4.2, "message": "This was quite enjoyable"})
+        submit_request = requests.post(submit_url, json={"book_id": "abYKXvCwEToC", "user": "Anonymous", "rating": 4.2, "message": "This was quite enjoyable"})
         self.assertEqual(submit_request.status_code, 201)
 
-        submit_request_2 = requests.post(submit_url, json={"book_id": "9780140449136", "user": "Anonymous", "rating": 4.8, "message": "After reading this a second time, it was even better!"})
+        submit_request_2 = requests.post(submit_url, json={"book_id": "abYKXvCwEToC", "user": "Anonymous", "rating": 4.8, "message": "After reading this a second time, it was even better!"})
         self.assertEqual(submit_request_2.status_code, 400)
 
-        submit_request_3 = requests.post(submit_url, json={"book_id": "9780140449136", "user": "User_1", "rating": 9.3, "message": "Absolutely amazing!!!"})
+        submit_request_3 = requests.post(submit_url, json={"book_id": "abYKXvCwEToC", "user": "User_1", "rating": 9.3, "message": "Absolutely amazing!!!"})
         self.assertEqual(submit_request_3.status_code, 400)
 
-        submit_request_4 = requests.post(submit_url, json={"book_id": "9780140449136", "user": "bookhater23", "rating": "bad book", "message": "I hated everything about this book >:("})
+        submit_request_4 = requests.post(submit_url, json={"book_id": "abYKXvCwEToC", "user": "bookhater23", "rating": "bad book", "message": "I hated everything about this book >:("})
         self.assertEqual(submit_request_4.status_code, 400)
 
         submit_request_5 = requests.post(submit_url, json={"book_id": "The Catcher in the Rye", "user": "Amazed_Unicorn", "rating": 4.5, "message": "I liked this book a lot."})
         self.assertEqual(submit_request_5.status_code, 404)
 
-    def test_update_review(self):
+    def test_0020_update_review(self):
         submit_url = url+"/submit_review"
-        submit_request = requests.post(submit_url, json={"book_id": "9780140449136", "user": "Anonymous", "rating": 4.2, "message": "This was quite enjoyable"})
+        submit_request = requests.post(submit_url, json={"book_id": "abYKXvCwEToC", "user": "user5", "rating": 4.2, "message": "This was quite enjoyable"})
+        
         review_id = submit_request.json().get("review_id")
         self.assertIsNotNone(review_id)
 
@@ -45,20 +45,20 @@ class TestReview(unittest.TestCase):
         update_request_3 = requests.put(update_url, json={"rating":"Great", "message": "Writer did a great job!"})
         self.assertEqual(update_request_3.status_code, 400)
 
-    def test_delete_review(self):
+    def test_0030_delete_review(self):
         submit_url = url+"/submit_review"
-        submit_request = requests.post(submit_url, json={"book_id": "9780140449136", "user": "Anonymous", "rating": 4.2, "message": "This was quite enjoyable"})
+        submit_request = requests.post(submit_url, json={"book_id": "abYKXvCwEToC", "user": "Anonymous", "rating": 4.2, "message": "This was quite enjoyable"})
 
         delete_url = url+"/delete_review"
 
-        delete_request = requests.delete(delete_url, json={"user":submit_request.json().get("user"), "book_id":submit_request.json().get("book_id")})
+        delete_request = requests.delete(delete_url, json={"user":"Anonymous", "book_id":"abYKXvCwEToC"})
         self.assertEqual(delete_request.status_code, 200)
 
-        delete_request_2 = requests.delete(delete_url, json={"user":"TheOneAndOnly", "book_id":"9780140449136"})
+        delete_request_2 = requests.delete(delete_url, json={"user":"TheOneAndOnly", "book_id":"abYKXvCwEToC"})
         self.assertEqual(delete_request_2.status_code, 404)
 
 
-    def test_sort_reviews(self):
+    def test_0040_sort_reviews(self):
         get_request = requests.get(url+"/reviews_sorted")
         self.assertEqual(get_request.status_code, 200)
 
@@ -101,7 +101,7 @@ class TestReview(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
     
 
-    def test_get_reviews_by_book_id(self):
+    def test_0050_get_reviews_by_book_id(self):
         submit_request = requests.post(url+"/submit_review", json={"book_id": "XjYQCwAAQBAJ", "user": "newuser", "rating": 4.2, "message": "This was quite enjoyable"})
         self.assertEqual(submit_request.status_code, 201)
 
@@ -112,5 +112,13 @@ class TestReview(unittest.TestCase):
         self.assertEqual(get_request.json()['reviews'][0]['user'], "newuser")
         self.assertEqual(get_request.json()['reviews'][0]['rating'], 4.2)
         self.assertEqual(get_request.json()['reviews'][0]['message'], "This was quite enjoyable")
+
+
+    def test_9999_cleanup(self):
+        submit_request = requests.delete(url+"/delete_review", json={"book_id": "abYKXvCwEToC", "user": "user5"})
+        self.assertEqual(submit_request.status_code, 200)
+
+        submit_request2 = requests.delete(url+"/delete_review", json={"book_id": "XjYQCwAAQBAJ", "user": "newuser"})
+        self.assertEqual(submit_request2.status_code, 200)
 
         
