@@ -7,8 +7,10 @@ This webapp is a digital library that allows users to store read books, books th
 First make shure you are in the base directory: /hactics-jasp-nerd-omarouaissa-s2486-general-template. If not go into it.
 
 The next step is to install the packages in requirements.txt:
+```py
 pip install -r requirements.txt
-
+```
 In order to run the program, app.py should be run:
+```py
 python backend/app.py
-
+```
