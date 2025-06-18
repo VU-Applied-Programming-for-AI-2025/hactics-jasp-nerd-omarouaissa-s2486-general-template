@@ -70,7 +70,7 @@ class WantToRead(db.Model):
 def search_url_build(query, order_by=None, lg=None, start_index=0, max_results=10, api_key=None):
     base_link = "https://www.googleapis.com/books/v1/volumes"
     params = {
-        "q": query,
+        "q": f"intitle:{query}",
         "startIndex": start_index,
         "maxResults": max_results
     }
@@ -86,8 +86,8 @@ def search_url_build(query, order_by=None, lg=None, start_index=0, max_results=1
     from urllib.parse import urlencode
     query_string = urlencode(params)
     full_url = f"{base_link}?{query_string}"
-
-    #returns full url with all the searches
+    print(query_string, full_url)
+    #returns full url with all the search parameters.
     return full_url
 
 
