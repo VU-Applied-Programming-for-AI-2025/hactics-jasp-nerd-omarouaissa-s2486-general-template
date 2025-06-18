@@ -107,6 +107,10 @@ class TestReview(unittest.TestCase):
 
         get_request = requests.get(url+"/reviews_book/XjYQCwAAQBAJ")
         self.assertEqual(get_request.status_code, 200)
-        self.assertEqual(get_request.json()['reviews'], [{"book_id": "XjYQCwAAQBAJ", "user": "newuser", "rating": 4.2, "message": "This was quite enjoyable"}])
+        #checking everything separetly because we cannot test the date and time the review is placed.
+        self.assertEqual(get_request.json()['reviews'][0]['book_id'], "XjYQCwAAQBAJ")
+        self.assertEqual(get_request.json()['reviews'][0]['user'], "newuser")
+        self.assertEqual(get_request.json()['reviews'][0]['rating'], 4.2)
+        self.assertEqual(get_request.json()['reviews'][0]['message'], "This was quite enjoyable")
 
         
