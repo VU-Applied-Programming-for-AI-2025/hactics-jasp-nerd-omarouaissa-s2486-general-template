@@ -6,7 +6,7 @@ book/
 venv/
 
 # stupid pycache
-__pycache__/*
+backend/tests/__pycache__/*
 *.pyc
 *.pyo
 *.pyd
