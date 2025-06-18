@@ -196,12 +196,9 @@ def add_book_id_to_favorites(user_id, book_id):
     '''
     The post request does not need body information, the book_id is given in the url of the request
     '''
-    # maybe change the book_id to be in the body of the request
 
     favorite = Favorite.query.get(user_id)
     if favorite:
-
-        # new_book_list = favorite.to_dict()['book_list_id']['list']
         favorite.book_list_id['list'].append(book_id)
 
         flag_modified(favorite, 'book_list_id')
@@ -209,6 +206,24 @@ def add_book_id_to_favorites(user_id, book_id):
         return jsonify({'created': favorite.to_dict()})
     else:
         return jsonify({'error': 'user not found'}), 404
+
+
+@app.route("/favorites/<int:user_id>/delete/<string:book_id>", methods=["POST"])
+def delete_book_id_to_favorites(user_id, book_id):
+    '''
+    The post request does not need body information, the book_id is given in the url of the request
+    '''
+
+    favorite = Favorite.query.get(user_id)
+    if favorite:
+        favorite.book_list_id['list'].remove(book_id)
+
+        flag_modified(favorite, 'book_list_id')
+        db.session.commit()
+        return jsonify({'created': favorite.to_dict()})
+    else:
+        return jsonify({'error': 'user not found'}), 404
+
 
     
 #endregion
@@ -322,6 +337,24 @@ def add_book_id_to_read_books(user_id, book_id):
         return jsonify({'error': 'user not found'}), 404
 
 
+@app.route("/read_books/<int:user_id>/delete/<string:book_id>", methods=["POST"])
+def delete_book_id_to_read_books(user_id, book_id):
+    '''
+    The post request does not need body information, the book_id is given in the url of the request
+    '''
+
+    read_book = ReadBooks.query.get(user_id)
+    if read_book:
+        read_book.book_list_id['list'].remove(book_id)
+
+        flag_modified(read_book, 'book_list_id')
+        db.session.commit()
+        return jsonify({'created': read_book.to_dict()})
+    else:
+        return jsonify({'error': 'user not found'}), 404
+
+
+
 #endregion
 
 
@@ -415,6 +448,7 @@ def delete_want_to_read(user_id):
     else:
         return jsonify({"error": "want_to_read not found"}), 404
     
+
 @app.route("/want_to_reads/<int:user_id>/add/<string:book_id>", methods=["POST"])
 def add_book_id_to_want_to_read(user_id, book_id):
     '''
@@ -431,7 +465,24 @@ def add_book_id_to_want_to_read(user_id, book_id):
     else:
         return jsonify({'error': 'user not found'}), 404
 
-    
+
+@app.route("/want_to_reads/<int:user_id>/delete/<string:book_id>", methods=["POST"])
+def delete_book_id_to_want_to_read(user_id, book_id):
+    '''
+    The post request does not need body information, the book_id is given in the url of the request
+    '''
+
+    want_to_read = WantToRead.query.get(user_id)
+    if want_to_read:
+        want_to_read.book_list_id['list'].remove(book_id)
+
+        flag_modified(want_to_read, 'book_list_id')
+        db.session.commit()
+        return jsonify({'created': want_to_read.to_dict()})
+    else:
+        return jsonify({'error': 'user not found'}), 404
+
+
 #endregion
 
 
@@ -442,6 +493,54 @@ def get_book_by_id(book_id):
     '''
     book_request = requests.get(f"https://www.googleapis.com/books/v1/volumes/{book_id}")
     return book_request.json()
+
+@app.route("/recommendations/<string:user_id>", methods=["GET"])
+def get_recommendations(user_id):
+    '''
+    Gets recommmendations for user. If user does not exist it will still return recommendations.
+    '''
+    favorite_book_ids = Favorite.query.get(user_id)
+
+    # if the user does not exist or does not have favorite books
+    if not favorite_book_ids:
+        standard_genre: str = "Juvenile Fiction"
+        get_recommended_books = requests.get(f'https://www.googleapis.com/books/v1/volumes?q=subject:"{standard_genre}"&printType=books&projection=full')
+
+        return jsonify({"recommendations": get_recommended_books.json(), "genre": standard_genre})
+
+    favorites: list = []
+    genre_ranking: dict = {}
+
+    for book_id in favorite_book_ids.book_list_id['list']:
+        book = get_book_by_id(book_id)
+        favorites.append(book)
+
+        genres = book["volumeInfo"]["categories"]
+        genres_per_book: list = []
+        # we only want to get one of each genre per book.
+        for genre in genres:
+            book_genre_list = genre.split('/')
+            for book_genre in book_genre_list:
+                book_genre = book_genre.strip()
+
+                if book_genre not in genres_per_book:
+                    genres_per_book.append(book_genre)
+                    genre_ranking[book_genre] = genre_ranking.get(book_genre, 0) + 1
+
+        # we want to grab the most common genre.
+        most_common_genre: str = None
+        highest_genre_count: int = 0
+        for genre, count in genre_ranking.items():
+            if count > highest_genre_count and genre != "General": #exclude general genre
+                highest_genre_count = count
+                most_common_genre = genre
+
+
+
+    # search books by genre:
+    get_recommended_books = requests.get(f'https://www.googleapis.com/books/v1/volumes?q=subject:"{most_common_genre}"&printType=books&projection=full')
+
+    return jsonify({"recommendations": get_recommended_books.json(), "genre": most_common_genre})
 
 
 #search region
