@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 import requests
 import os
 from datetime import datetime
+from typing import Dict, List, Optional, Any
+from urllib.parse import urlencode
 # Run website --> python backend/app.py in cmd
 load_dotenv()
 
@@ -34,7 +36,11 @@ class Favorite(db.Model):
     user = db.Column(db.String(100), primary_key=True)
     book_list_id = db.Column(db.JSON)
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
+        '''
+        Converts the Favorite object to a dictionary representation.
+        Returns: a dict, containing user and book_list_id
+        '''
         return {
             "user": self.user,
             "book_list_id": self.book_list_id
@@ -47,7 +53,11 @@ class ReadBooks(db.Model):
     user = db.Column(db.String(100), primary_key=True)
     book_list_id = db.Column(db.JSON)
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
+        '''
+        Converts the ReadBooks object to a dictionary representation.
+        Returns: a dict, containing user and book_list_id
+        '''
         return {
             "user": self.user,
             "book_list_id": self.book_list_id
@@ -60,14 +70,20 @@ class WantToRead(db.Model):
     user = db.Column(db.String(100), primary_key=True)
     book_list_id = db.Column(db.JSON)
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
+        '''
+        Converts the WantToRead object to a dictionary representation.
+        Returns: a dict, containing user and book_list_id
+        '''
         return {
             "user": self.user,
             "book_list_id": self.book_list_id
         }
     
 class Review(db.Model):
-
+    '''
+    Review model, stores book reviews with user ratings and messages.
+    '''
     id = db.Column(db.Integer, primary_key=True)
     book_id = db.Column(db.String(15), nullable=False)
     user = db.Column(db.String(30), nullable=False)
@@ -75,7 +91,11 @@ class Review(db.Model):
     date = db.Column(db.DateTime, default=datetime.utcnow)
     message = db.Column(db.Text)
 
-def search_url_build(query, order_by=None, lg=None, start_index=0, max_results=10, api_key=None):
+def search_url_build(query: str, order_by: Optional[str] = None, lg: Optional[str] = None, start_index: int = 0, max_results: int = 10, api_key: Optional[str] = None) -> str:
+    '''
+    Builds a search URL for the Google Books API with the given parameters.
+    Returns: a str, the complete search URL
+    '''
     base_link = "https://www.googleapis.com/books/v1/volumes"
     params = {
         "q": f"intitle:{query}",
@@ -91,7 +111,6 @@ def search_url_build(query, order_by=None, lg=None, start_index=0, max_results=1
         params["key"] = api_key
 
     # add all of the parameters to the url for the search.
-    from urllib.parse import urlencode
     query_string = urlencode(params)
     full_url = f"{base_link}?{query_string}"
     print(query_string, full_url)
@@ -105,13 +124,17 @@ with app.app_context():
 
 
 @app.route("/")
-def home():
+def home() -> Any:
+    '''
+    Home route that returns a welcome message.
+    Returns: a json response with welcome message
+    '''
     return jsonify({"message": "Welcome to BookBuddy"})
 
 
 #region favorite app routes
 @app.route("/favorites", methods=["GET"])
-def get_favorites():
+def get_favorites() -> Any:
     '''
     Returns all favorites stored in the database.
     The return is a list of book id's
@@ -121,7 +144,7 @@ def get_favorites():
 
 
 @app.route("/favorites/<string:user_id>", methods=["GET"])
-def get_favorite(user_id):
+def get_favorite(user_id: str) -> Any:
     '''
     Returns users favorites according to user id.
     The return is a list of book id's
@@ -134,7 +157,7 @@ def get_favorite(user_id):
         return jsonify({"error": f"favorite not found for user: {user_id}"}), 404
 
 @app.route("/favorite_books/<string:user_id>", methods=["GET"])
-def get_favorite_books(user_id):
+def get_favorite_books(user_id: str) -> Any:
     '''
     Returns users favorite books according to the user id.
     It returns the a list of books, the same as Google books.
@@ -152,7 +175,7 @@ def get_favorite_books(user_id):
         return jsonify({"error": f"favorite not found for user: {user_id}"}), 404
 
 @app.route("/favorites", methods=["POST"])
-def post_favorites():
+def post_favorites() -> Any:
     '''
     Creates favorites for user. 
     The data from the post request should hold the user id and the list of book id's.
@@ -177,7 +200,7 @@ def post_favorites():
     return jsonify(new_favorite.to_dict()), 201
 
 @app.route("/favorites/<string:user_id>", methods=["PUT"])
-def update_favorites(user_id):
+def update_favorites(user_id: str) -> Any:
     '''
     Updates favorites for user.
     The data from the put request should hold the user id and the list of book id's.
@@ -206,7 +229,7 @@ def update_favorites(user_id):
 
 
 @app.route("/favorites/<string:user_id>", methods=["DELETE"])
-def delete_favorites(user_id):
+def delete_favorites(user_id: str) -> Any:
     '''
     Deletes the favorites of user with user_id.
     '''
@@ -220,7 +243,7 @@ def delete_favorites(user_id):
         return jsonify({"error": "favorite not found"}), 404
     
 @app.route("/favorites/<string:user_id>/add/<string:book_id>", methods=["POST"])
-def add_book_id_to_favorites(user_id, book_id):
+def add_book_id_to_favorites(user_id: str, book_id: str) -> Any:
     '''
     The post request does not need body information, the book_id is given in the url of the request.
     '''
@@ -237,7 +260,7 @@ def add_book_id_to_favorites(user_id, book_id):
 
 
 @app.route("/favorites/<int:user_id>/delete/<string:book_id>", methods=["POST"])
-def delete_book_id_to_favorites(user_id, book_id):
+def delete_book_id_to_favorites(user_id: int, book_id: str) -> Any:
     '''
     The post request does not need body information, the book_id is given in the url of the request
     '''
@@ -259,7 +282,7 @@ def delete_book_id_to_favorites(user_id, book_id):
 
 #region read book app routes
 @app.route("/read_books", methods=["GET"])
-def get_read_books():
+def get_read_books() -> Any:
     '''
     Returns all read books stored in the database.
     The return is a list of book id's
@@ -269,7 +292,7 @@ def get_read_books():
 
 
 @app.route("/read_books/<string:user_id>", methods=["GET"])
-def get_read_book(user_id):
+def get_read_book(user_id: str) -> Any:
     '''
     Returns users read books according to user id.
     The return is a list of book id's
@@ -282,7 +305,7 @@ def get_read_book(user_id):
         return jsonify({"error": f"read_book not found for user: {user_id}"}), 404
 
 @app.route("/read_book_objects/<string:user_id>", methods=["GET"])
-def get_read_book_object(user_id):
+def get_read_book_object(user_id: str) -> Any:
     '''
     Returns users read books according to the user id.
     It returns the a list of books, the same as Google books.
@@ -300,7 +323,7 @@ def get_read_book_object(user_id):
         return jsonify({"error": f"read_book not found for user: {user_id}"}), 404
 
 @app.route("/read_books", methods=["POST"])
-def post_read_books():
+def post_read_books() -> Any:
     '''
     Creates read books for user. 
     The data from the post request should hold the user id and the list of book id's.
@@ -325,7 +348,7 @@ def post_read_books():
     return jsonify(new_read_book.to_dict()), 201
 
 @app.route("/read_books/<string:user_id>", methods=["PUT"])
-def update_read_books(user_id):
+def update_read_books(user_id: str) -> Any:
     '''
     Updates read books for user.
     The data from the put request should hold the user id and the list of book id's.
@@ -354,7 +377,7 @@ def update_read_books(user_id):
 
 
 @app.route("/read_books/<string:user_id>", methods=["DELETE"])
-def delete_read_books(user_id):
+def delete_read_books(user_id: str) -> Any:
     '''
     Deletes the read books of user with user_id.
     '''
@@ -369,7 +392,7 @@ def delete_read_books(user_id):
 
 
 @app.route("/read_books/<string:user_id>/add/<string:book_id>", methods=["POST"])
-def add_book_id_to_read_books(user_id, book_id):
+def add_book_id_to_read_books(user_id: str, book_id: str) -> Any:
     '''
     The post request does not need body information, the book_id is given in the url of the request
     '''
@@ -386,7 +409,7 @@ def add_book_id_to_read_books(user_id, book_id):
 
 
 @app.route("/read_books/<string:user_id>/delete/<string:book_id>", methods=["POST"])
-def delete_book_id_to_read_books(user_id, book_id):
+def delete_book_id_to_read_books(user_id: str, book_id: str) -> Any:
     '''
     The post request does not need body information, the book_id is given in the url of the request
     '''
@@ -408,7 +431,7 @@ def delete_book_id_to_read_books(user_id, book_id):
 
 #region want to read app routes
 @app.route("/want_to_reads", methods=["GET"])
-def get_want_to_reads():
+def get_want_to_reads() -> Any:
     '''
     Returns all want to read books stored in the database.
     The return is a list of book id's
@@ -418,7 +441,7 @@ def get_want_to_reads():
 
 
 @app.route("/want_to_reads/<string:user_id>", methods=["GET"])
-def get_want_to_read(user_id):
+def get_want_to_read(user_id: str) -> Any:
     '''
     Returns users want to read books according to user id.
     The return is a list of book id's
@@ -431,7 +454,7 @@ def get_want_to_read(user_id):
         return jsonify({"error": f"want_to_read not found for user: {user_id}"}), 404
 
 @app.route("/want_to_read_books/<string:user_id>", methods=["GET"])
-def get_want_to_read_books(user_id):
+def get_want_to_read_books(user_id: str) -> Any:
     '''
     Returns users want to read books according to the user id.
     It returns the a list of books, the same as Google books.
@@ -449,7 +472,7 @@ def get_want_to_read_books(user_id):
         return jsonify({"error": f"want_to_read not found for user: {user_id}"}), 404
 
 @app.route("/want_to_reads", methods=["POST"])
-def post_want_to_read_books():
+def post_want_to_read_books() -> Any:
     '''
     Creates want to read books for user. 
     The data from the post request should hold the user id and the list of book id's.
@@ -474,7 +497,7 @@ def post_want_to_read_books():
     return jsonify(new_want_to_read.to_dict()), 201
 
 @app.route("/want_to_reads/<string:user_id>", methods=["PUT"])
-def update_want_to_read(user_id):
+def update_want_to_read(user_id: str) -> Any:
     '''
     Updates want to read books for user.
     The data from the put request should hold the user id and the list of book id's.
@@ -503,7 +526,7 @@ def update_want_to_read(user_id):
 
 
 @app.route("/want_to_reads/<string:user_id>", methods=["DELETE"])
-def delete_want_to_read(user_id):
+def delete_want_to_read(user_id: str) -> Any:
     '''
     Deletes the want to read books of user with user_id.
     '''
@@ -518,7 +541,7 @@ def delete_want_to_read(user_id):
     
 
 @app.route("/want_to_reads/<string:user_id>/add/<string:book_id>", methods=["POST"])
-def add_book_id_to_want_to_read(user_id, book_id):
+def add_book_id_to_want_to_read(user_id: str, book_id: str) -> Any:
     '''
     The post request does not need body information, the book_id is given in the url of the request
     '''
@@ -535,7 +558,7 @@ def add_book_id_to_want_to_read(user_id, book_id):
 
 
 @app.route("/want_to_reads/<string:user_id>/delete/<string:book_id>", methods=["POST"])
-def delete_book_id_to_want_to_read(user_id, book_id):
+def delete_book_id_to_want_to_read(user_id: str, book_id: str) -> Any:
     '''
     The post request does not need body information, the book_id is given in the url of the request
     '''
@@ -555,7 +578,7 @@ def delete_book_id_to_want_to_read(user_id, book_id):
 
 
 @app.route("/get_book/<string:book_id>", methods=["GET"])
-def get_book_by_id(book_id):
+def get_book_by_id(book_id: str) -> Any:
     '''
     Returns a book object from the given book_id the same as the Google Books API.
     '''
@@ -563,7 +586,7 @@ def get_book_by_id(book_id):
     return book_request.json()
 
 @app.route("/recommendations/<string:user_id>", methods=["GET"])
-def get_recommendations(user_id):
+def get_recommendations(user_id: str) -> Any:
     '''
     Gets recommmendations for user. If user does not exist it will still return recommendations.
     '''
@@ -612,7 +635,7 @@ def get_recommendations(user_id):
 
 
 @app.route("/most_favorites", methods=["GET"])
-def get_most_favorites():
+def get_most_favorites() -> Any:
     '''
     Returns a list of maximum 10 most favorite books according to the amount of favorites it has.
     '''
@@ -638,7 +661,7 @@ def get_most_favorites():
 
 #search region
 @app.route('/search', methods=['GET'])
-def search():
+def search() -> Any:
     '''
     This is the search endpoint for the google books api.
     It will return a list of books based on the query.
@@ -665,7 +688,7 @@ def search():
 
 
 @app.route("/api/chat", methods=["POST"])
-def chat_endpoint():
+def chat_endpoint() -> Any:
     '''
     This is the chat endpoint for the gemini api.
     It will return a response from the gemini api.
@@ -733,7 +756,7 @@ def chat_endpoint():
 if __name__ == "__main__":
     app.run(debug=True)
 
-def book_search_title(query):
+def book_search_title(query: str) -> List[Dict[str, Any]]:
     '''
     Searches for books by title using the Google Books API and returns a list of matching book items.
     '''
@@ -744,7 +767,7 @@ def book_search_title(query):
 
 @app.route("/submit_review", methods=["POST"])
 
-def submit_review():
+def submit_review() -> Any:
     '''
     Lets the user submit a review about a book they've written.
     '''
@@ -779,7 +802,7 @@ def submit_review():
 
 @app.route("/update_review/<int:review_id>", methods=["PUT"])
 
-def update_review(review_id):
+def update_review(review_id: int) -> Any:
     '''
     Lets the user update one of their existing reviews.
     '''
@@ -808,7 +831,7 @@ def update_review(review_id):
 
 @app.route("/delete_review", methods=["DELETE"])
 
-def delete_review_by_user():
+def delete_review_by_user() -> Any:
     '''
     Lets the user delete one of their existing reviews.
     '''
@@ -829,7 +852,7 @@ def delete_review_by_user():
 
 @app.route("/reviews_sorted")
 
-def get_sorted_reviews():
+def get_sorted_reviews() -> Any:
     '''
     Lets the user sort reviews of a book by their rating or date in either
     an ascending or descending order.
@@ -857,7 +880,7 @@ def get_sorted_reviews():
 
 
 @app.route("/reviews_book/<string:book_id>", methods=["GET"])
-def get_reviews_by_book_id(book_id):
+def get_reviews_by_book_id(book_id: str) -> Any:
     '''
     Gets all reviews related to the book with book_id
     '''

@@ -1,15 +1,25 @@
 import unittest, requests
+from typing import Any
 
 # from reviews import Review, app, db
 
 url: str = "http://127.0.0.1:5000"
 
 class TestReview(unittest.TestCase):
+    '''
+    Test class for review functionality.
+    '''
 
-    def setUp(self):
+    def setUp(self) -> None:
+        '''
+        Set up method for test cases.
+        '''
         pass
 
-    def test_0010_submit_review(self):
+    def test_0010_submit_review(self) -> None:
+        '''
+        Tests the submit review functionality.
+        '''
         submit_url = url+"/submit_review"
 
         submit_request = requests.post(submit_url, json={"book_id": "abYKXvCwEToC", "user": "Anonymous", "rating": 4.2, "message": "This was quite enjoyable"})
@@ -27,7 +37,10 @@ class TestReview(unittest.TestCase):
         submit_request_5 = requests.post(submit_url, json={"book_id": "The Catcher in the Rye", "user": "Amazed_Unicorn", "rating": 4.5, "message": "I liked this book a lot."})
         self.assertEqual(submit_request_5.status_code, 404)
 
-    def test_0020_update_review(self):
+    def test_0020_update_review(self) -> None:
+        '''
+        Tests the update review functionality.
+        '''
         submit_url = url+"/submit_review"
         submit_request = requests.post(submit_url, json={"book_id": "abYKXvCwEToC", "user": "user5", "rating": 4.2, "message": "This was quite enjoyable"})
         
@@ -45,7 +58,10 @@ class TestReview(unittest.TestCase):
         update_request_3 = requests.put(update_url, json={"rating":"Great", "message": "Writer did a great job!"})
         self.assertEqual(update_request_3.status_code, 400)
 
-    def test_0030_delete_review(self):
+    def test_0030_delete_review(self) -> None:
+        '''
+        Tests the delete review functionality.
+        '''
         submit_url = url+"/submit_review"
         submit_request = requests.post(submit_url, json={"book_id": "abYKXvCwEToC", "user": "Anonymous", "rating": 4.2, "message": "This was quite enjoyable"})
 
@@ -58,7 +74,10 @@ class TestReview(unittest.TestCase):
         self.assertEqual(delete_request_2.status_code, 404)
 
 
-    def test_0040_sort_reviews(self):
+    def test_0040_sort_reviews(self) -> None:
+        '''
+        Tests the sort reviews functionality.
+        '''
         get_request = requests.get(url+"/reviews_sorted")
         self.assertEqual(get_request.status_code, 200)
 
@@ -101,7 +120,10 @@ class TestReview(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
     
 
-    def test_0050_get_reviews_by_book_id(self):
+    def test_0050_get_reviews_by_book_id(self) -> None:
+        '''
+        Tests the get reviews by book ID functionality.
+        '''
         submit_request = requests.post(url+"/submit_review", json={"book_id": "XjYQCwAAQBAJ", "user": "newuser", "rating": 4.2, "message": "This was quite enjoyable"})
         self.assertEqual(submit_request.status_code, 201)
 
@@ -114,7 +136,10 @@ class TestReview(unittest.TestCase):
         self.assertEqual(get_request.json()['reviews'][0]['message'], "This was quite enjoyable")
 
 
-    def test_9999_cleanup(self):
+    def test_9999_cleanup(self) -> None:
+        '''
+        Cleanup method to remove test data.
+        '''
         submit_request = requests.delete(url+"/delete_review", json={"book_id": "abYKXvCwEToC", "user": "user5"})
         self.assertEqual(submit_request.status_code, 200)
 
