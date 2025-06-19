@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Buddy</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Book Buddy</h1>
+            <p style="color: rgba(255,255,255,0.9);">Your personal book management companion</p>
+            
+            <div class="user-section">
+                <input type="text" id="userIdInput" class="user-input" placeholder="Enter your user ID" value="user123">
+                <button onclick="setUserId()" class="user-btn">Set User</button>
+                <span id="currentUser" style="color: white; margin-left: 15px;">Current User: user123</span>
+            </div>
+
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-bar" placeholder="Search for books...">
+                <button onclick="searchBooks()" class="search-btn">🔍</button>
+            </div>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('home')">🏠 Home</button>
+            <button class="nav-tab" onclick="showSection('search')">🔍 Search Results</button>
+            <button class="nav-tab" onclick="showSection('favorites')">❤️ Favorites</button>
+            <button class="nav-tab" onclick="showSection('read')">✅ Read</button>
+            <button class="nav-tab" onclick="showSection('want-to-read')">📖 Want to Read</button>
+            <button class="nav-tab" onclick="showSection('chat')">🤖 AI Chat</button>
+        </div>
+
+        <div id="home" class="content-section active">
+            <h2>Welcome to Book Buddy!</h2>
+            <p>Discover your next favorite book with personalized recommendations.</p>
+            
+            <h3 style="margin-top: 30px; margin-bottom: 15px;">🔥 Most Popular Books</h3>
+            <div id="popularBooks" class="books-grid">
+                <div class="loading">Loading popular books...</div>
+            </div>
+            
+            <h3 style="margin-top: 30px; margin-bottom: 15px;">🎯 Recommended for You</h3>
+            <div id="recommendedBooks" class="books-grid">
+                <div class="loading">Loading recommendations...</div>
+            </div>
+        </div>
+
+        <div id="search" class="content-section">
+            <h2>Search Results</h2>
+            <div id="searchResults" class="books-grid">
+                <p style="text-align: center; color: #666;">Use the search bar above to find books</p>
+            </div>
+        </div>
+
+        <div id="favorites" class="content-section">
+            <h2>❤️ Your Favorite Books</h2>
+            <div id="favoriteBooks" class="books-grid">
+                <div class="loading">Loading favorites...</div>
+            </div>
+        </div>
+
+        <div id="read" class="content-section">
+            <h2>✅ Books You've Read</h2>
+            <div id="readBooks" class="books-grid">
+                <div class="loading">Loading read books...</div>
+            </div>
+        </div>
+
+        <div id="want-to-read" class="content-section">
+            <h2>📖 Want to Read</h2>
+            <div id="wantToReadBooks" class="books-grid">
+                <div class="loading">Loading want to read books...</div>
+            </div>
+        </div>
+
+        <div id="chat" class="content-section">
+            <h2>🤖 Chat with Book Buddy AI</h2>
+            <div class="chat-container">
+                <div id="chatMessages" class="chat-messages">
+                    <div class="message bot">Hi! I'm Book Buddy AI. I can help you discover new books based on your reading preferences. What kind of books are you interested in?</div>
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" class="chat-input" placeholder="Ask me about books..." onkeypress="handleChatKeyPress(event)">
+                    <button onclick="sendMessage()" class="chat-send">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js">
+    </script>
+</body>
+</html>

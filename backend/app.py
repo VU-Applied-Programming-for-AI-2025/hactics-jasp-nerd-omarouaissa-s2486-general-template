@@ -11,10 +11,12 @@ import os
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from urllib.parse import urlencode
+from flask_cors import CORS
 # Run website --> python backend/app.py in cmd
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
 # Start gemini API with system prompt for book recommendations
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
