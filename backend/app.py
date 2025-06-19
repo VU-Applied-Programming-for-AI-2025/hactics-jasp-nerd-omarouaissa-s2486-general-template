@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 import requests
 from sqlalchemy.orm.attributes import flag_modified
 from google import genai
@@ -15,6 +16,7 @@ from urllib.parse import urlencode
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 # Start gemini API with system prompt for book recommendations
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
@@ -25,7 +27,10 @@ chat = client.chats.create(
     )
 )
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bookbuddy.db'
+basedir = os.path.abspath(os.path.dirname(__file__))
+instance_dir = os.path.join(basedir, "instance")
+os.makedirs(instance_dir, exist_ok=True)
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(instance_dir, "bookbuddy.db")}'
 
 db = SQLAlchemy(app)
 
@@ -250,17 +255,21 @@ def add_book_id_to_favorites(user_id: str, book_id: str) -> Any:
 
     favorite = Favorite.query.get(user_id)
     if favorite:
-        favorite.book_list_id['list'].append(book_id)
-
-        flag_modified(favorite, 'book_list_id')
-        db.session.commit()
-        return jsonify({'created': favorite.to_dict()})
+        if book_id not in favorite.book_list_id['list']:
+            favorite.book_list_id['list'].append(book_id)
+            flag_modified(favorite, 'book_list_id')
+            db.session.commit()
+        return jsonify({'success': True, 'data': favorite.to_dict()})
     else:
-        return jsonify({'error': 'user not found'}), 404
+        # Create new favorite list for user
+        new_favorite = Favorite(user=user_id, book_list_id={'list': [book_id]})
+        db.session.add(new_favorite)
+        db.session.commit()
+        return jsonify({'success': True, 'data': new_favorite.to_dict()}), 201
 
 
-@app.route("/favorites/<int:user_id>/delete/<string:book_id>", methods=["POST"])
-def delete_book_id_to_favorites(user_id: int, book_id: str) -> Any:
+@app.route("/favorites/<string:user_id>/delete/<string:book_id>", methods=["POST"])
+def delete_book_id_to_favorites(user_id: str, book_id: str) -> Any:
     '''
     The post request does not need body information, the book_id is given in the url of the request
     '''
@@ -399,13 +408,17 @@ def add_book_id_to_read_books(user_id: str, book_id: str) -> Any:
 
     read_book = ReadBooks.query.get(user_id)
     if read_book:
-        read_book.book_list_id['list'].append(book_id)
-
-        flag_modified(read_book, 'book_list_id')
-        db.session.commit()
-        return jsonify({'created': read_book.to_dict()})
+        if book_id not in read_book.book_list_id['list']:
+            read_book.book_list_id['list'].append(book_id)
+            flag_modified(read_book, 'book_list_id')
+            db.session.commit()
+        return jsonify({'success': True, 'data': read_book.to_dict()})
     else:
-        return jsonify({'error': 'user not found'}), 404
+        # Create new read books list for user
+        new_read_book = ReadBooks(user=user_id, book_list_id={'list': [book_id]})
+        db.session.add(new_read_book)
+        db.session.commit()
+        return jsonify({'success': True, 'data': new_read_book.to_dict()}), 201
 
 
 @app.route("/read_books/<string:user_id>/delete/<string:book_id>", methods=["POST"])
@@ -548,13 +561,17 @@ def add_book_id_to_want_to_read(user_id: str, book_id: str) -> Any:
 
     want_to_read = WantToRead.query.get(user_id)
     if want_to_read:
-        want_to_read.book_list_id['list'].append(book_id)
-
-        flag_modified(want_to_read, 'book_list_id')
-        db.session.commit()
-        return jsonify({'created': want_to_read.to_dict()})
+        if book_id not in want_to_read.book_list_id['list']:
+            want_to_read.book_list_id['list'].append(book_id)
+            flag_modified(want_to_read, 'book_list_id')
+            db.session.commit()
+        return jsonify({'success': True, 'data': want_to_read.to_dict()})
     else:
-        return jsonify({'error': 'user not found'}), 404
+        # Create new want to read list for user
+        new_want_to_read = WantToRead(user=user_id, book_list_id={'list': [book_id]})
+        db.session.add(new_want_to_read)
+        db.session.commit()
+        return jsonify({'success': True, 'data': new_want_to_read.to_dict()}), 201
 
 
 @app.route("/want_to_reads/<string:user_id>/delete/<string:book_id>", methods=["POST"])
@@ -753,9 +770,6 @@ def chat_endpoint() -> Any:
             "status": "error"
         }), 500
 
-if __name__ == "__main__":
-    app.run(debug=True)
-
 def book_search_title(query: str) -> List[Dict[str, Any]]:
     '''
     Searches for books by title using the Google Books API and returns a list of matching book items.
@@ -766,7 +780,6 @@ def book_search_title(query: str) -> List[Dict[str, Any]]:
     return resonse.json()["items"]
 
 @app.route("/submit_review", methods=["POST"])
-
 def submit_review() -> Any:
     '''
     Lets the user submit a review about a book they've written.
@@ -801,7 +814,6 @@ def submit_review() -> Any:
     return jsonify({"Message":"Review was submitted successfully!", "review_id": new_review.id}), 201
 
 @app.route("/update_review/<int:review_id>", methods=["PUT"])
-
 def update_review(review_id: int) -> Any:
     '''
     Lets the user update one of their existing reviews.
@@ -830,7 +842,6 @@ def update_review(review_id: int) -> Any:
     return jsonify({"Message":"Review was updated successfully!"}), 200    
 
 @app.route("/delete_review", methods=["DELETE"])
-
 def delete_review_by_user() -> Any:
     '''
     Lets the user delete one of their existing reviews.
@@ -850,8 +861,7 @@ def delete_review_by_user() -> Any:
 
     return jsonify({"Message":"Review has been deleted successfully!"}), 200
 
-@app.route("/reviews_sorted")
-
+@app.route("/reviews_sorted", methods=["GET"])
 def get_sorted_reviews() -> Any:
     '''
     Lets the user sort reviews of a book by their rating or date in either
