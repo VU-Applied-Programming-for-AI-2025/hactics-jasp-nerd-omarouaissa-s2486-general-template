@@ -643,8 +643,6 @@ def get_recommendations(user_id: str) -> Any:
                 highest_genre_count = count
                 most_common_genre = genre
 
-
-
     # search books by genre:
     get_recommended_books = requests.get(f'https://www.googleapis.com/books/v1/volumes?q=subject:"{most_common_genre}"&printType=books&projection=full')
 
@@ -718,8 +716,12 @@ def chat_endpoint() -> Any:
         user_message = data["message"]
         user_id = data["user_id"]
         
-        # Get users book context
-        user_context = "Here's what I know about you:\n"
+        # Build system prompt with role definition
+        system_prompt = "You are BookBuddy, a helpful book recommendation assistant. You help users discover new books based on their reading preferences and answer questions about books and reading.\n\n"
+        
+        # Get user's book context
+        user_context = "User's reading profile:\n"
+        has_reading_data = False
         
         # Get favorites
         favorites = Favorite.query.get(user_id)
@@ -730,7 +732,8 @@ def chat_endpoint() -> Any:
                 if 'volumeInfo' in book_info:
                     favorite_books.append(book_info['volumeInfo'].get('title', 'Unknown Title'))
             if favorite_books:
-                user_context += f"Your favorite books: {', '.join(favorite_books)}\n"
+                user_context += f"- Favorite books: {', '.join(favorite_books)}\n"
+                has_reading_data = True
         
         # Get read books
         read = ReadBooks.query.get(user_id)
@@ -741,7 +744,8 @@ def chat_endpoint() -> Any:
                 if 'volumeInfo' in book_info:
                     read_books.append(book_info['volumeInfo'].get('title', 'Unknown Title'))
             if read_books:
-                user_context += f"Books you've read: {', '.join(read_books)}\n"
+                user_context += f"- Books they've read: {', '.join(read_books)}\n"
+                has_reading_data = True
         
         # Get want to read books
         want_to_read = WantToRead.query.get(user_id)
@@ -752,10 +756,14 @@ def chat_endpoint() -> Any:
                 if 'volumeInfo' in book_info:
                     want_to_read_books.append(book_info['volumeInfo'].get('title', 'Unknown Title'))
             if want_to_read_books:
-                user_context += f"Books you want to read: {', '.join(want_to_read_books)}\n"
+                user_context += f"- Books they want to read: {', '.join(want_to_read_books)}\n"
+                has_reading_data = True
         
-        # Combine context with user message
-        full_message = f"{user_context}\nUser question: {user_message}"
+        if not has_reading_data:
+            user_context += "- No reading history available yet\n"
+        
+        # Combine everything for the AI
+        full_message = f"{system_prompt}{user_context}\nUser's question: {user_message}\n\nPlease provide a helpful response as BookBuddy."
         
         # Send message to gemini and get response
         response = chat.send_message(full_message)
