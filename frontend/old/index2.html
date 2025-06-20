@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Buddy - Enhanced</title>
-    <link  rel="stylesheet" href="style.css">
+    <title>Book Buddy</title>
+    <link rel="stylesheet" href="style2.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>📚 Book Buddy</h1>
-            <p>Your personal book management companion</p>
+            <p style="color: rgba(255,255,255,0.9);">Your personal book management companion</p>
             
             <div class="user-section">
                 <input type="text" id="userIdInput" class="user-input" placeholder="Enter your user ID" value="user123">
                 <button onclick="setUserId()" class="user-btn">Set User</button>
-                <button onclick="deleteUser()" class="delete-user-btn">Delete Profile</button>
-                <span id="currentUser" class="current-user">Current User: user123</span>
+                <span id="currentUser" style="color: white; margin-left: 15px;">Current User: user123</span>
             </div>
 
             <div class="search-container">
@@ -59,62 +58,54 @@
             <button class="nav-tab" onclick="showSection('favorites')">❤️ Favorites</button>
             <button class="nav-tab" onclick="showSection('read')">✅ Read</button>
             <button class="nav-tab" onclick="showSection('want-to-read')">📖 Want to Read</button>
-            <button class="nav-tab" onclick="showSection('reviews')">⭐ My Reviews</button>
             <button class="nav-tab" onclick="showSection('chat')">🤖 AI Chat</button>
         </div>
 
         <div id="home" class="content-section active">
-            <h2 class="section-title">Welcome to Book Buddy!</h2>
-            <p style="font-size: 1.1em; color: #666; margin-bottom: 30px;">Discover your next favorite book with personalized recommendations.</p>
+            <h2>Welcome to Book Buddy!</h2>
+            <p>Discover your next favorite book with personalized recommendations.</p>
             
-            <h3 style="margin-top: 40px; margin-bottom: 20px; font-size: 1.8em; color: #333;">🔥 Most Popular Books</h3>
+            <h3 style="margin-top: 30px; margin-bottom: 15px;">🔥 Most Popular Books</h3>
             <div id="popularBooks" class="books-grid">
                 <div class="loading">Loading popular books...</div>
             </div>
             
-            <h3 style="margin-top: 40px; margin-bottom: 20px; font-size: 1.8em; color: #333;">🎯 Recommended for You</h3>
+            <h3 style="margin-top: 30px; margin-bottom: 15px;">🎯 Recommended for You</h3>
             <div id="recommendedBooks" class="books-grid">
                 <div class="loading">Loading recommendations...</div>
             </div>
         </div>
 
         <div id="search" class="content-section">
-            <h2 class="section-title">Search Results</h2>
+            <h2>Search Results</h2>
             <div id="searchResults" class="books-grid">
-                <p style="text-align: center; color: #666; font-size: 1.1em;">Use the search bar above to find books</p>
+                <p style="text-align: center; color: #666;">Use the search bar above to find books</p>
             </div>
         </div>
 
         <div id="favorites" class="content-section">
-            <h2 class="section-title">❤️ Your Favorite Books</h2>
+            <h2>❤️ Your Favorite Books</h2>
             <div id="favoriteBooks" class="books-grid">
                 <div class="loading">Loading favorites...</div>
             </div>
         </div>
 
         <div id="read" class="content-section">
-            <h2 class="section-title">✅ Books You've Read</h2>
+            <h2>✅ Books You've Read</h2>
             <div id="readBooks" class="books-grid">
                 <div class="loading">Loading read books...</div>
             </div>
         </div>
 
         <div id="want-to-read" class="content-section">
-            <h2 class="section-title">📖 Want to Read</h2>
+            <h2>📖 Want to Read</h2>
             <div id="wantToReadBooks" class="books-grid">
                 <div class="loading">Loading want to read books...</div>
             </div>
         </div>
 
-        <div id="reviews" class="content-section">
-            <h2 class="section-title">⭐ My Reviews</h2>
-            <div id="userReviews">
-                <div class="loading">Loading reviews...</div>
-            </div>
-        </div>
-
         <div id="chat" class="content-section">
-            <h2 class="section-title">🤖 Chat with Book Buddy AI</h2>
+            <h2>🤖 Chat with Book Buddy AI</h2>
             <div class="chat-container">
                 <div id="chatMessages" class="chat-messages">
                     <div class="message bot">Hi! I'm Book Buddy AI. I can help you discover new books based on your reading preferences. What kind of books are you interested in?</div>
@@ -127,40 +118,7 @@
         </div>
     </div>
 
-    <!-- Review Modal -->
-    <div id="reviewModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeReviewModal()">&times;</span>
-            <h3 id="reviewModalTitle">Write a Review</h3>
-            <div class="rating-container">
-                <span class="star" data-rating="1">★</span>
-                <span class="star" data-rating="2">★</span>
-                <span class="star" data-rating="3">★</span>
-                <span class="star" data-rating="4">★</span>
-                <span class="star" data-rating="5">★</span>
-            </div>
-            <textarea id="reviewText" class="review-textarea" placeholder="Write your review here..."></textarea>
-            <div style="margin-top: 20px; text-align: center;">
-                <button onclick="saveReview()" class="user-btn">Save Review</button>
-                <button onclick="closeReviewModal()" class="delete-user-btn" style="margin-left: 10px;">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="bookModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeBookModal()">&times;</span>
-            <h3 id="bookModalTitle">Book Title</h3>
-            <div class="bookContainer">
-                <img src="no_cover.png" id="bookThumbnail">
-                <div id="bookAuthors">no authors available</div>
-                <div id="bookDescription">no description available</div>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js">
-        
+    <script src="script2.js">
     </script>
 </body>
 </html>
