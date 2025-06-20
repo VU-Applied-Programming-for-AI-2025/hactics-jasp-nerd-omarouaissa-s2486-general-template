@@ -20,3 +20,4 @@ instance/
 *.db
 instance/bookbuddy.db
 
+node_modules/
