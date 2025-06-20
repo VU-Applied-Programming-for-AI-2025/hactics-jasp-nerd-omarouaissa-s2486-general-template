@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, BookOpen, Clock, Star, MoreHorizontal } from 'lucide-react';
+import { Heart, BookOpen, Clock, Star, MoreHorizontal, X } from 'lucide-react';
 import { useUser } from '../../context/UserContext';
 import { userListsAPI } from '../../services/api';
 import { useQueryClient } from 'react-query';
 import toast from 'react-hot-toast';
 
-const BookCard = ({ book, showActions = true, className = '' }) => {
+const BookCard = ({ book, showActions = true, className = '', removeFromCollection = false, collectionType = null }) => {
   const { currentUser, isAuthenticated } = useUser();
   const queryClient = useQueryClient();
 
@@ -103,6 +103,32 @@ const BookCard = ({ book, showActions = true, className = '' }) => {
     }
   };
 
+  const getRemoveButtonText = () => {
+    switch (collectionType) {
+      case 'favorites':
+        return 'Remove from Favorites';
+      case 'read':
+        return 'Remove from Read';
+      case 'wantToRead':
+        return 'Remove from Want to Read';
+      default:
+        return 'Remove';
+    }
+  };
+
+  const getRemoveButtonColor = () => {
+    switch (collectionType) {
+      case 'favorites':
+        return 'hover:bg-red-50 hover:border-red-300 hover:text-red-700';
+      case 'read':
+        return 'hover:bg-green-50 hover:border-green-300 hover:text-green-700';
+      case 'wantToRead':
+        return 'hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700';
+      default:
+        return 'hover:bg-red-50 hover:border-red-300 hover:text-red-700';
+    }
+  };
+
   return (
     <div className={`book-card ${className}`}>
       <div className="flex space-x-4">
@@ -166,33 +192,46 @@ const BookCard = ({ book, showActions = true, className = '' }) => {
 
           {/* Action Buttons */}
           {showActions && isAuthenticated && (
-            <div className="flex items-center space-x-2 mt-3">
-              <button
-                onClick={() => handleAddToList('favorites')}
-                className="flex items-center space-x-1 text-xs btn-outline hover:bg-red-50 hover:border-red-300 hover:text-red-700"
-                title="Add to Favorites"
-              >
-                <Heart className="w-3 h-3" />
-                <span>Favorite</span>
-              </button>
-              
-              <button
-                onClick={() => handleAddToList('read')}
-                className="flex items-center space-x-1 text-xs btn-outline hover:bg-green-50 hover:border-green-300 hover:text-green-700"
-                title="Mark as Read"
-              >
-                <BookOpen className="w-3 h-3" />
-                <span>Read</span>
-              </button>
-              
-              <button
-                onClick={() => handleAddToList('wantToRead')}
-                className="flex items-center space-x-1 text-xs btn-outline hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700"
-                title="Want to Read"
-              >
-                <Clock className="w-3 h-3" />
-                <span>Want to Read</span>
-              </button>
+            <div className="flex flex-wrap gap-2 mt-3">
+              {!removeFromCollection ? (
+                <>
+                  <button
+                    onClick={() => handleAddToList('favorites')}
+                    className="flex items-center space-x-1 text-xs btn-outline hover:bg-red-50 hover:border-red-300 hover:text-red-700 whitespace-nowrap"
+                    title="Add to Favorites"
+                  >
+                    <Heart className="w-3 h-3" />
+                    <span>Favorite</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => handleAddToList('read')}
+                    className="flex items-center space-x-1 text-xs btn-outline hover:bg-green-50 hover:border-green-300 hover:text-green-700 whitespace-nowrap"
+                    title="Mark as Read"
+                  >
+                    <BookOpen className="w-3 h-3" />
+                    <span>Read</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => handleAddToList('wantToRead')}
+                    className="flex items-center space-x-1 text-xs btn-outline hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 whitespace-nowrap"
+                    title="Want to Read"
+                  >
+                    <Clock className="w-3 h-3" />
+                    <span>Want to Read</span>
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => handleRemoveFromList(collectionType)}
+                  className={`flex items-center space-x-1 text-xs btn-outline ${getRemoveButtonColor()} whitespace-nowrap`}
+                  title={getRemoveButtonText()}
+                >
+                  <X className="w-3 h-3" />
+                  <span>{getRemoveButtonText()}</span>
+                </button>
+              )}
             </div>
           )}
 
