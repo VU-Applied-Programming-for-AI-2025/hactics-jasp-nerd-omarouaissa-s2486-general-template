@@ -193,6 +193,8 @@ const LibraryPage = () => {
                 key={book.id} 
                 book={book} 
                 showActions={true}
+                removeFromCollection={true}
+                collectionType={activeTab}
                 className={`${activeTabData.bgColor} border ${activeTabData.borderColor}`}
               />
             ))}
