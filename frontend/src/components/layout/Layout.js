@@ -37,7 +37,7 @@ const Layout = ({ children }) => {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-8">
+            <nav className="hidden lg:flex space-x-8">
               {navigation.map((item) => {
                 const isActive = location.pathname === item.href;
                 return (
@@ -60,7 +60,7 @@ const Layout = ({ children }) => {
             {/* User Menu */}
             <div className="flex items-center space-x-4">
               {isAuthenticated ? (
-                <div className="hidden md:flex items-center space-x-3">
+                <div className="hidden lg:flex items-center space-x-3">
                   <span className="text-sm text-book-600">
                     Welcome, {currentUser?.name || currentUser?.id}
                   </span>
@@ -75,7 +75,7 @@ const Layout = ({ children }) => {
               ) : (
                 <Link
                   to="/login"
-                  className="hidden md:flex items-center space-x-1 btn-primary"
+                  className="hidden lg:flex items-center space-x-1 btn-primary"
                 >
                   <User className="w-4 h-4" />
                   <span>Login</span>
@@ -85,7 +85,7 @@ const Layout = ({ children }) => {
               {/* Mobile menu button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-2 rounded-md text-book-600 hover:text-book-900 hover:bg-book-100"
+                className="lg:hidden p-2 rounded-md text-book-600 hover:text-book-900 hover:bg-book-100"
               >
                 {isMobileMenuOpen ? (
                   <X className="w-6 h-6" />
@@ -99,7 +99,7 @@ const Layout = ({ children }) => {
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-book-200">
               {navigation.map((item) => {
                 const isActive = location.pathname === item.href;
