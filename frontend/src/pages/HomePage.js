@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { useUser } from '../context/UserContext';
@@ -11,6 +11,8 @@ const HomePage = () => {
   const navigate = useNavigate();
   const { currentUser, isAuthenticated } = useUser();
   const [searchResults, setSearchResults] = useState(null);
+  const [popularBooks, setPopularBooks] = useState([]);
+  const [loadingPopularBooks, setLoadingPopularBooks] = useState(false);
 
   // Fetch most favorited books
   const { data: mostFavorites, isLoading: loadingFavorites } = useQuery(
@@ -30,6 +32,27 @@ const HomePage = () => {
       staleTime: 5 * 60 * 1000, // 5 minutes
     }
   );
+
+  // Fetch details for popular books when mostFavorites changes
+  useEffect(() => {
+    const fetchPopularBooks = async () => {
+      if (mostFavorites?.most_favorites && Array.isArray(mostFavorites.most_favorites)) {
+        setLoadingPopularBooks(true);
+        try {
+          const bookPromises = mostFavorites.most_favorites.slice(0, 6).map((bookId) => bookAPI.getBook(bookId));
+          const books = await Promise.all(bookPromises);
+          setPopularBooks(books.filter(Boolean));
+        } catch (err) {
+          setPopularBooks([]);
+        } finally {
+          setLoadingPopularBooks(false);
+        }
+      } else {
+        setPopularBooks([]);
+      }
+    };
+    fetchPopularBooks();
+  }, [mostFavorites]);
 
   const handleSearch = (query, filters) => {
     navigate('/search', { 
@@ -155,7 +178,7 @@ const HomePage = () => {
           </div>
         </div>
 
-        {loadingFavorites ? (
+        {loadingFavorites || loadingPopularBooks ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
               <div key={i} className="book-card animate-pulse">
@@ -170,16 +193,15 @@ const HomePage = () => {
               </div>
             ))}
           </div>
-        ) : mostFavorites?.most_favorites ? (
+        ) : popularBooks.length > 0 ? (
           <div className="space-y-6">
             <p className="text-book-600">
               Books that readers love the most
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mostFavorites.most_favorites.slice(0, 6).map(async (bookId) => {
-                const book = await getBookDetails(bookId);
-                return book ? <BookCard key={bookId} book={book} /> : null;
-              })}
+              {popularBooks.map((book) => (
+                <BookCard key={book.id} book={book} />
+              ))}
             </div>
           </div>
         ) : (
