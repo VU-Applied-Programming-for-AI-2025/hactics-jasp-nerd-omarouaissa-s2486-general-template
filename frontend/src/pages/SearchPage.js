@@ -74,8 +74,26 @@ const SearchPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const totalPages = Math.ceil((searchResults?.totalItems || 0) / 10);
-  const hasResults = searchResults?.items && searchResults.items.length > 0;
+  // Helper to normalize search results
+  const getNormalizedResults = (searchResults) => {
+    if (Array.isArray(searchResults)) {
+      return {
+        items: searchResults,
+        totalItems: searchResults.length,
+      };
+    } else if (searchResults && Array.isArray(searchResults.items)) {
+      return {
+        items: searchResults.items,
+        totalItems: searchResults.totalItems || searchResults.items.length,
+      };
+    } else {
+      return { items: [], totalItems: 0 };
+    }
+  };
+
+  const normalized = getNormalizedResults(searchResults);
+  const totalPages = Math.ceil((normalized.totalItems || 0) / 10);
+  const hasResults = normalized.items && normalized.items.length > 0;
 
   return (
     <div className="space-y-8">
@@ -102,7 +120,7 @@ const SearchPage = () => {
                 <p className="text-book-600">Searching...</p>
               ) : hasResults ? (
                 <p className="text-book-600">
-                  Found {searchResults.totalItems} results for "{searchParams.query}"
+                  Found {normalized.totalItems} results for "{searchParams.query}"
                 </p>
               ) : (
                 <p className="text-book-600">No results found for "{searchParams.query}"</p>
@@ -136,7 +154,7 @@ const SearchPage = () => {
           {!isLoading && !error && hasResults && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {searchResults.items.map((book) => (
+                {normalized.items.map((book) => (
                   <BookCard key={book.id} book={book} />
                 ))}
               </div>
