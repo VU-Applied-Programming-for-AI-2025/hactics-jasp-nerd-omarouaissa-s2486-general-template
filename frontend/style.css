@@ -98,7 +98,8 @@ body {
 }
 
 .user-btn {
-    background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+    background: linear-gradient(45deg, #d75bc0, #df73d1);
+    /* background: linear-gradient(45deg, #ff6b6b, #ff8e8e); */
     color: white;
     border: none;
     padding: 12px 24px;
@@ -111,7 +112,8 @@ body {
 
 .user-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+    /* box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4); */
+    box-shadow: 0 8px 25px rgba(183, 73, 178, 0.373);
 }
 
 .delete-user-btn {
@@ -169,7 +171,8 @@ body {
     right: 8px;
     top: 25%;
     transform: translateY(-50%);
-    background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+    /* background: linear-gradient(45deg, #ff6b6b, #ff8e8e); */
+    background: linear-gradient(45deg, #d75bc0, #df73d1);
     color: white;
     border: none;
     border-radius: 50%;
@@ -185,7 +188,8 @@ body {
 
 .search-btn:hover {
     transform: translateY(-50%) scale(1.1);
-    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+    /* box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4); */
+    box-shadow: 0 8px 25px rgba(183, 73, 178, 0.373);
 }
 
 .search-filters {
@@ -208,7 +212,7 @@ body {
 }
 
 .filter-select:focus {
-    border-color: #ff6b6b;
+    border-color: #d75bc0;
     box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
 }
 
@@ -256,8 +260,9 @@ body {
 }
 
 .nav-tab.active {
-    background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
-    border-color: #ff6b6b;
+    /* background: linear-gradient(45deg, #ff6b6b, #ff8e8e); */
+    background: linear-gradient(45deg, #d75bc0, #df73d1);
+    border-color: #c966b7;
     transform: translateY(-3px);
     box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
 }

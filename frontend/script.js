@@ -7,7 +7,6 @@ let currentReviewId = null;
 let userFavorites = new Set();
 let userReviews = {};
 
-
 /*
 TODO:
 -fix reviews
