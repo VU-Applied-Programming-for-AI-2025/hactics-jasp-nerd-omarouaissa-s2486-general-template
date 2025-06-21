@@ -84,9 +84,9 @@ function setUserId(showmsg=true) {
 }
 
 function deleteUser() {
-    if (!confirm(`Are you sure you want to delete the profile for ${currentUserId}? This action cannot be undone.`)) {
-        return;
-    }
+    // if (!confirm(`Are you sure you want to delete the profile for ${currentUserId}? This action cannot be undone.`)) {
+    //     return;
+    // }
 
     const deletePromises = [
         fetch(`${API_BASE}/favorites/${currentUserId}`, { method: 'DELETE' }).catch(() => {}),
@@ -463,9 +463,9 @@ function addToList(listType, bookId) {
 }
 
 function removeFromList(listType, bookId) {
-    if (!confirm('Are you sure you want to remove this book?')) {
-        return;
-    }
+    // if (!confirm('Are you sure you want to remove this book?')) {
+    //     return;
+    // }
 
     fetch(`${API_BASE}/${listType}/${currentUserId}/delete/${bookId}`, {
         method: 'POST'
@@ -593,9 +593,9 @@ function saveReview() {
 }
 
 function deleteReview(bookId) {
-    if (!confirm('Are you sure you want to delete this review?')) {
-        return;
-    }
+    // if (!confirm('Are you sure you want to delete this review?')) {
+    //     return;
+    // }
     let method = "DELETE"
 
     url = `${API_BASE}/delete_review`
@@ -756,9 +756,13 @@ document.getElementById('searchInput').addEventListener('keypress', function(eve
 
 // Close modal when clicking outside
 window.onclick = function(event) {
-    const modal = document.getElementById('reviewModal');
-    if (event.target === modal) {
+    const reviewModal = document.getElementById('reviewModal');
+    const bookModal = document.getElementById('bookModal');
+    if (event.target === reviewModal) {
         closeReviewModal();
+    }
+    else if (event.target === bookModal){
+        closeBookModal();
     }
 }
 
