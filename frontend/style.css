@@ -642,6 +642,47 @@ body {
     background: #dc3545;
 }
 
+
+.book-modal-content {
+    background: white;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 100%;
+    max-height: 100%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    animation: modalSlide 0.3s ease;
+}
+
+.bookContainer{
+    display: flex;
+    margin-bottom: 20px;
+}
+
+#bookInformation{
+    display: block;
+}
+
+#bookThumbnail{
+    min-width: 400px;
+}
+
+#bookDescription{
+    margin: 30px;
+}
+
+#bookAuthors{
+    display: inline;
+    margin: 30px;
+}
+
+#bookModalTitle{
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+
 .section-title {
     font-size: 2.5em;
     font-weight: 800;

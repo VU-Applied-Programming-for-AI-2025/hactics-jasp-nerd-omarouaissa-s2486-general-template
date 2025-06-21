@@ -43,11 +43,12 @@
                         <option value="fr">French</option>
                         <option value="de">German</option>
                         <option value="it">Italian</option>
+                        <option value="nl">Dutch</option>
                     </select>
                     <select id="sortFilter" class="filter-select">
                         <option value="relevance">Sort by Relevance</option>
                         <option value="newest">Newest First</option>
-                        <option value="oldest">Oldest First</option>
+                        <!--<option value="oldest">Oldest First</option>-->
                     </select>
                 </div>
             </div>
@@ -148,13 +149,15 @@
     </div>
 
     <div id="bookModal" class="modal">
-        <div class="modal-content">
+        <div class="book-modal-content">
             <span class="close" onclick="closeBookModal()">&times;</span>
             <h3 id="bookModalTitle">Book Title</h3>
             <div class="bookContainer">
                 <img src="no_cover.png" id="bookThumbnail">
-                <div id="bookAuthors">no authors available</div>
-                <div id="bookDescription">no description available</div>
+                <div id="bookInformation">
+                    <div id="bookAuthors">no authors available</div>
+                    <div id="bookDescription">no description available</div>
+                </div>
             </div>
         </div>
     </div>

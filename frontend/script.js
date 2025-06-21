@@ -7,6 +7,17 @@ let currentReviewId = null;
 let userFavorites = new Set();
 let userReviews = {};
 
+
+/*
+TODO:
+-fix reviews
+-fix user changing
+-update the UI, make it more appealing and more modern
+-fix book modal
+
+*/
+
+
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
     loadHomeData();
@@ -135,13 +146,13 @@ function searchBooks() {
     resultsDiv.innerHTML = '<div class="loading">Searching...</div>';
 
     // Build search URL with filters
-    let searchUrl = `${API_BASE}/search?q=${encodeURIComponent(query)}`;
+    let searchUrl = `${API_BASE}/search/${encodeURIComponent(query.replace(" ", "+"))}`;
     
     const genre = document.getElementById('genreFilter').value;
     const language = document.getElementById('languageFilter').value;
     const sort = document.getElementById('sortFilter').value;
     
-    if (genre) searchUrl += `&subject=${encodeURIComponent(genre)}`;
+    if (genre) searchUrl += `+subject:'${encodeURIComponent(genre)}'`;
     if (language) searchUrl += `&langRestrict=${language}`;
     if (sort !== 'relevance') searchUrl += `&orderBy=${sort}`;
 
@@ -154,6 +165,7 @@ function searchBooks() {
             console.error('Search error:', error);
             resultsDiv.innerHTML = '<div class="error">Error searching books. Please try again.</div>';
         });
+    console.log(searchUrl)
 }
 
 // Load home data
@@ -295,6 +307,7 @@ function loadUserReviews() {
         });
 }
 
+
 // Display functions
 function displayBooks(books, containerId, showRemoveButton = false) {
     const container = document.getElementById(containerId);
@@ -324,13 +337,11 @@ function displayBooks(books, containerId, showRemoveButton = false) {
             actionButtons += `<button class="action-btn remove" onclick="removeFromList('${listType}', '${bookId}')" title="Remove">🗑️</button>`;
         }
         
-        let description = volumeInfo.description.replace("<p>", "").replace("</p>", "")
-        console.log(description)
-        console.log(authors)
+        // <div onclick="openBookModal('${title}', '${thumbnail}', '${authors}', '${encodeURIComponent(description)}')">
         
         return `
             <div class="book-card">
-                <div onclick="openBookModal('${title}', '${thumbnail}', '${authors}', '${description}')">
+                <div onclick="openBookModal('${bookId}')">
                     <img src="${thumbnail}" alt="${title}" class="book-cover" onerror="this.onerror=null;this.src='no_cover.png';">
                     <div class="book-title">${title}</div>
                     <div class="book-author">${authors}</div>
@@ -593,15 +604,17 @@ function deleteReview(bookId) {
     });
 }
 
-function openBookModal(title, thumbnail, authors, description){
-    console.log(authors);
-    console.log(description);
-    console.log(thumbnail);
-    document.getElementById('bookModalTitle').textContent = title;
-    document.getElementById('bookThumbnail').src = thumbnail;
-    document.getElementById('bookAuthors').textContent = authors;
-    document.getElementById('bookDescription').textContent = description;
-    
+// function openBookModal(title, thumbnail, authors, description){
+function openBookModal(bookId){
+    fetch(`${API_BASE}/get_book/${bookId}`)
+    .then(response => response.json())
+    .then((json) => {
+        document.getElementById('bookModalTitle').textContent = json.volumeInfo.title;
+        document.getElementById('bookThumbnail').src = json.volumeInfo.imageLinks?.thumbnail || 'no_cover.png';;
+        document.getElementById('bookAuthors').textContent = json.volumeInfo.authors ? json.volumeInfo.authors.join(', ') : 'Unknown Author';;
+        document.getElementById('bookDescription').innerHTML = json.volumeInfo.description;
+    });
+
     document.getElementById('bookModal').style.display = 'block';
 }
 

@@ -688,6 +688,21 @@ def search() -> Any:
     books = response.json().get("items", [])
     return jsonify(books)
 
+@app.route('/search/<string:query>', methods=['GET'])
+def search_by_query(query) -> Any:
+    '''
+    This is the search endpoint for the google books api.
+    It will return a list of books based on the query.
+    '''
+    
+    url = search_url_build(
+        query=query,
+        api_key= os.environ["API_KEY"]
+    )
+
+    response = requests.get(url)
+    books = response.json().get("items", [])
+    return jsonify(books)
 
 @app.route("/api/chat", methods=["POST"])
 def chat_endpoint() -> Any:
