@@ -20,8 +20,10 @@
             </div>
 
             <div class="search-container">
-                <input type="text" id="searchInput" class="search-bar" placeholder="Search for books...">
-                <button onclick="searchBooks()" class="search-btn">🔍</button>
+                <div>
+                    <input type="text" id="searchInput" class="search-bar" placeholder="Search for books...">
+                    <button onclick="searchBooks()" class="search-btn">🔍</button>
+                </div>
                 <div class="search-filters">
                     <select id="genreFilter" class="filter-select">
                         <option value="">All Genres</option>
@@ -157,7 +159,16 @@
                 <div id="bookInformation">
                     <div id="bookAuthors">no authors available</div>
                     <div id="bookDescription">no description available</div>
+
+                    <div id="bookReviewsSection">
+                        <h4 style="margin-top: 20px;">📖 Reader Reviews</h4>
+                        <div id="bookReviewsContainer" class="reviews-list">
+                            <div class="loading">Loading reviews...</div>
+                        </div>
+                        <div class="editReviews"></div>
+                    </div>
                 </div>
+            
             </div>
         </div>
     </div>

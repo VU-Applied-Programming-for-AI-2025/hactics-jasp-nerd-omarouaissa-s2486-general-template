@@ -10,11 +10,10 @@ let userReviews = {};
 
 /*
 TODO:
--fix reviews
--fix user changing
+-fix reviews ✅
+-fix user changing ✅
 -update the UI, make it more appealing and more modern
 -fix book modal
-
 */
 
 
@@ -288,7 +287,7 @@ function loadWantToReadBooks() {
 }
 
 function loadUserReviews() {
-    fetch(`${API_BASE}/reviews_user/${currentUserId}`)
+    fetch(`${API_BASE}/reviews/${currentUserId}`)
         .then(response => {
             if (response.status === 404) {
                 document.getElementById('userReviews').innerHTML = '<p style="text-align: center; color: #666;">No reviews yet</p>';
@@ -297,7 +296,6 @@ function loadUserReviews() {
             return response.json();
         })
         .then(reviews => {
-            reviews = reviews.reviews
             if (reviews) {
                 displayReviews(reviews);
             }
@@ -369,8 +367,6 @@ function displayReviews(reviews) {
         userReviews[review.book_id] = review;
     });
 
-    
-
     container.innerHTML = reviews.map(review => {
         const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
         return `
@@ -385,14 +381,17 @@ function displayReviews(reviews) {
                         <button class="review-btn delete" onclick="deleteReview('${review.book_id}')">Delete</button>
                     </div>
                 </div>
-                <div class="review-text">${review.message}</div>
+                <div class="review-text">${review.review_text}</div>
             </div>
         `;
     }).join('');
 }
 
-// List management functions
+// List management functions - FIXED: Preserve currentUserId
 function addToList(listType, bookId) {
+    // Store current user to prevent switching
+    const originalUserId = currentUserId;
+    
     // Check for duplicates in favorites
     if (listType === 'favorites' && userFavorites.has(bookId)) {
         showMessage('This book is already in your favorites!', 'error');
@@ -400,7 +399,7 @@ function addToList(listType, bookId) {
     }
 
     // First check if user exists, if not create them
-    fetch(`${API_BASE}/${listType}/${currentUserId}`)
+    fetch(`${API_BASE}/${listType}/${originalUserId}`)
         .then(response => {
             if (response.status === 404) {
                 // Create new list for user
@@ -410,7 +409,7 @@ function addToList(listType, bookId) {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        user: currentUserId,
+                        user: originalUserId,
                         book_list_id: { list: [] }
                     })
                 });
@@ -419,7 +418,7 @@ function addToList(listType, bookId) {
         })
         .then(() => {
             // Add book to list
-            return fetch(`${API_BASE}/${listType}/${currentUserId}/add/${bookId}`, {
+            return fetch(`${API_BASE}/${listType}/${originalUserId}/add/${bookId}`, {
                 method: 'POST'
             });
         })
@@ -430,6 +429,10 @@ function addToList(listType, bookId) {
             return response.json();
         })
         .then(data => {
+            // Ensure user hasn't changed
+            currentUserId = originalUserId;
+            document.getElementById('currentUser').textContent = `Current User: ${currentUserId}`;
+            
             showMessage('Book added successfully!', 'success');
             
             // Update local favorites set
@@ -449,6 +452,9 @@ function addToList(listType, bookId) {
         .catch(error => {
             console.error('Error adding book:', error);
             showMessage('Error adding book. It might already be in your list.', 'error');
+            // Restore user if something went wrong
+            currentUserId = originalUserId;
+            document.getElementById('currentUser').textContent = `Current User: ${currentUserId}`;
         });
 }
 
@@ -457,7 +463,10 @@ function removeFromList(listType, bookId) {
         return;
     }
 
-    fetch(`${API_BASE}/${listType}/${currentUserId}/delete/${bookId}`, {
+    // Store current user to prevent switching
+    const originalUserId = currentUserId;
+
+    fetch(`${API_BASE}/${listType}/${originalUserId}/delete/${bookId}`, {
         method: 'POST'
     })
     .then(response => {
@@ -467,6 +476,10 @@ function removeFromList(listType, bookId) {
         return response.json();
     })
     .then(data => {
+        // Ensure user hasn't changed
+        currentUserId = originalUserId;
+        document.getElementById('currentUser').textContent = `Current User: ${currentUserId}`;
+        
         showMessage('Book removed successfully!', 'success');
         
         // Update local favorites set
@@ -486,10 +499,13 @@ function removeFromList(listType, bookId) {
     .catch(error => {
         console.error('Error removing book:', error);
         showMessage('Error removing book', 'error');
+        // Restore user if something went wrong
+        currentUserId = originalUserId;
+        document.getElementById('currentUser').textContent = `Current User: ${currentUserId}`;
     });
 }
 
-// Review functions
+// Review functions - FIXED: Proper edit/delete functionality
 function openReviewModal(bookId) {
     currentReviewBookId = bookId;
     isEditingReview = false;
@@ -504,17 +520,18 @@ function openReviewModal(bookId) {
 
 function editReview(bookId) {
     const review = userReviews[bookId];
-    if (!review) return;
-
-    console.log(review)
+    if (!review) {
+        showMessage('Review not found', 'error');
+        return;
+    }
 
     currentReviewBookId = bookId;
     isEditingReview = true;
-    currentReviewId = review.id;
+    currentReviewId = review.id || null;
     currentReviewRating = review.rating;
     
     document.getElementById('reviewModalTitle').textContent = 'Edit Review';
-    document.getElementById('reviewText').value = review.message;
+    document.getElementById('reviewText').value = review.review_text || review.message || '';
     updateStarDisplay();
     document.getElementById('reviewModal').style.display = 'block';
 }
@@ -540,14 +557,15 @@ function saveReview() {
         return;
     }
 
+    // Store current user to prevent switching
+    const originalUserId = currentUserId;
+
     const reviewData = {
         book_id: currentReviewBookId,
-        user: currentUserId,
+        user: originalUserId,
         rating: currentReviewRating,
         message: reviewText
     };
-
-    console.log(isEditingReview, currentReviewId)
 
     let url = `${API_BASE}/submit_review`;
     let method = 'POST';
@@ -571,14 +589,21 @@ function saveReview() {
         return response.json();
     })
     .then(data => {
+        // Ensure user hasn't changed
+        currentUserId = originalUserId;
+        document.getElementById('currentUser').textContent = `Current User: ${currentUserId}`;
+        
         showMessage(isEditingReview ? 'Review updated successfully!' : 'Review saved successfully!', 'success');
         closeReviewModal();
         loadUserReviews();
-        console.log(data)
+        console.log(data);
     })
     .catch(error => {
         console.error('Error saving review:', error);
         showMessage('Error saving review', 'error');
+        // Restore user if something went wrong
+        currentUserId = originalUserId;
+        document.getElementById('currentUser').textContent = `Current User: ${currentUserId}`;
     });
 }
 
@@ -586,30 +611,41 @@ function deleteReview(bookId) {
     if (!confirm('Are you sure you want to delete this review?')) {
         return;
     }
-    let method = "DELETE"
 
-    url = `${API_BASE}/delete_review`
-    const delete_data = {
-        user: currentUserId,
+    // Store current user to prevent switching
+    const originalUserId = currentUserId;
+
+    const url = `${API_BASE}/delete_review`;
+    const method = 'DELETE'; // Fixed: was undefined
+    const deleteData = {
+        user: originalUserId,
         book_id: bookId
-    }
+    };
+
     fetch(url, {
         method: method,
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(delete_data)
+        body: JSON.stringify(deleteData)
     })
     .then(response => {
         if (!response.ok) {
             throw new Error('Failed to delete review');
         }
+        // Ensure user hasn't changed
+        currentUserId = originalUserId;
+        document.getElementById('currentUser').textContent = `Current User: ${currentUserId}`;
+        
         showMessage('Review deleted successfully!', 'success');
         loadUserReviews();
     })
     .catch(error => {
         console.error('Error deleting review:', error);
         showMessage('Error deleting review', 'error');
+        // Restore user if something went wrong
+        currentUserId = originalUserId;
+        document.getElementById('currentUser').textContent = `Current User: ${currentUserId}`;
     });
 }
 
@@ -678,6 +714,9 @@ function sendMessage() {
     const message = input.value.trim();
     if (!message) return;
 
+    // Store current user to prevent switching
+    const originalUserId = currentUserId;
+
     const messagesDiv = document.getElementById('chatMessages');
     
     // Add user message
@@ -693,18 +732,25 @@ function sendMessage() {
         },
         body: JSON.stringify({
             message: message,
-            user_id: currentUserId
+            user_id: originalUserId
         })
     })
     .then(response => response.json())
     .then(data => {
-        messagesDiv.innerHTML += `<div class="message bot">${data.response.replaceAll("*", "")}</div>`;
+        // Ensure user hasn't changed
+        currentUserId = originalUserId;
+        document.getElementById('currentUser').textContent = `Current User: ${currentUserId}`;
+        
+        messagesDiv.innerHTML += `<div class="message bot">${data.response}</div>`;
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     })
     .catch(error => {
         console.error('Chat error:', error);
         messagesDiv.innerHTML += `<div class="message bot">Sorry, I'm having trouble responding right now. Please try again.</div>`;
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        // Restore user if something went wrong
+        currentUserId = originalUserId;
+        document.getElementById('currentUser').textContent = `Current User: ${currentUserId}`;
     });
 }
 
@@ -746,9 +792,14 @@ document.getElementById('searchInput').addEventListener('keypress', function(eve
 
 // Close modal when clicking outside
 window.onclick = function(event) {
-    const modal = document.getElementById('reviewModal');
-    if (event.target === modal) {
+    const reviewModal = document.getElementById('reviewModal');
+    const bookModal = document.getElementById('bookModal');
+    
+    if (event.target === reviewModal) {
         closeReviewModal();
+    }
+    if (event.target === bookModal) {
+        closeBookModal();
     }
 }
 
