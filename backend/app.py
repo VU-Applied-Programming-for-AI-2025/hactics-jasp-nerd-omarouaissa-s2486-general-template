@@ -15,7 +15,7 @@ from urllib.parse import urlencode
 load_dotenv()
 
 app = Flask(__name__)
-
+CORS(app)
 # Start gemini API with system prompt for book recommendations
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 chat = client.chats.create(
