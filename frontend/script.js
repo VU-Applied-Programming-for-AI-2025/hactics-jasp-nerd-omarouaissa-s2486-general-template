@@ -11,7 +11,6 @@ let userReviews = {};
 /*
 TODO:
 -fix reviews
--fix user changing
 -update the UI, make it more appealing and more modern
 -fix book modal
 
@@ -20,6 +19,7 @@ TODO:
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
+    setUserId(false);
     loadHomeData();
     loadUserLists();
     initializeStarRating();
@@ -61,7 +61,7 @@ function updateStarDisplay() {
 }
 
 // User management
-function setUserId() {
+function setUserId(showmsg=true) {
     const input = document.getElementById('userIdInput');
     const newUserId = input.value.trim();
     if (!newUserId) {
@@ -75,10 +75,12 @@ function setUserId() {
     // Clear existing data
     userFavorites.clear();
     userReviews = {};
-    
+
     loadUserLists();
     loadHomeData();
-    showMessage('User changed successfully!', 'success');
+    if (showmsg){ 
+        showMessage('User changed successfully!', 'success');
+    }
 }
 
 function deleteUser() {
@@ -298,9 +300,9 @@ function loadUserReviews() {
         })
         .then(reviews => {
             reviews = reviews.reviews
-            if (reviews) {
+            // if (reviews) {
                 displayReviews(reviews);
-            }
+            // }
         })
         .catch(error => {
             console.error('Error loading reviews:', error);
@@ -372,12 +374,20 @@ function displayReviews(reviews) {
     
 
     container.innerHTML = reviews.map(review => {
+        // var obj;
+        // fetch(`${API_BASE}/get_book/${review.book_id}`)
+        // .then(res => res.json())
+        // .then(data => {
+        //     obj = data;
+        // }).then(() => {
+        //     console.log(obj);
+        
         const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
         return `
             <div class="review-item">
                 <div class="review-header">
                     <div>
-                        <strong>Book ID: ${review.book_id}</strong>
+                        <strong>${review.title}</strong>
                         <div class="review-rating">${stars} (${review.rating}/5)</div>
                     </div>
                     <div class="review-actions">
@@ -657,8 +667,8 @@ function loadBookReviews(bookId) {
 
                 reviewElement.innerHTML = `
                     <div class="review-header">
+                        <span class="review-user"><b>${review.user || "Anonymous"}</b></span>
                         <span class="review-rating">${"★".repeat(review.rating)}</span>
-                        <span class="review-user">${review.user || "Anonymous"}</span>
                     </div>
                     <div class="review-text">${review.message || ""}</div>
                 `;

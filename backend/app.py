@@ -609,6 +609,8 @@ def get_recommendations(user_id: str) -> Any:
         favorites.append(book)
 
         genres = book["volumeInfo"]["categories"]
+        if not genres:
+            genres = ['general']
         genres_per_book: list = []
         # we only want to get one of each genre per book.
         for genre in genres:
@@ -922,7 +924,8 @@ def get_reviews_by_user(user_id: str) -> Any:
     reviews_with_user_id: list = []
     for review in all_reviews:
         if review.user == user_id:
-            reviews_with_user_id.append({"id": review.id, "user": review.user, "rating": review.rating, "message": review.message, "date": review.date, "book_id": review.book_id})
+            book = get_book_by_id(review.book_id)
+            reviews_with_user_id.append({"id": review.id, "user": review.user, "title": book["volumeInfo"]["title"], "rating": review.rating, "message": review.message, "date": review.date, "book_id": review.book_id})
 
     if reviews_with_user_id:
         return jsonify({"reviews": reviews_with_user_id})
