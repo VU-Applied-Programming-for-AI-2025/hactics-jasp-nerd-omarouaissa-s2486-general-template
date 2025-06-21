@@ -611,10 +611,10 @@ def get_recommendations(user_id: str) -> Any:
 
     # if the user does not exist or does not have favorite books
     if not favorite_book_ids:
-        standard_genre: str = "Juvenile Fiction"
+        standard_genre: str = "Fiction"
         get_recommended_books = requests.get(f'https://www.googleapis.com/books/v1/volumes?q=subject:"{standard_genre}"&printType=books&projection=full')
 
-        return jsonify({"recommendations": get_recommended_books.json(), "genre": "Juvenile Fiction"})
+        return jsonify({"recommendations": get_recommended_books.json(), "genre": "Fiction"})
 
     favorites: list = []
     genre_ranking: dict = {}
@@ -623,25 +623,27 @@ def get_recommendations(user_id: str) -> Any:
         book = get_book_by_id(book_id)
         favorites.append(book)
 
-        genres = book["volumeInfo"]["categories"]
-        genres_per_book: list = []
-        # we only want to get one of each genre per book.
-        for genre in genres:
-            book_genre_list = genre.split('/')
-            for book_genre in book_genre_list:
-                book_genre = book_genre.strip()
+        # check if book has categories
+        if "volumeInfo" in book and "categories" in book["volumeInfo"]:
+            genres = book["volumeInfo"]["categories"]
+            genres_per_book: list = []
+            # we only want to get one of each genre per book.
+            for genre in genres:
+                book_genre_list = genre.split('/')
+                for book_genre in book_genre_list:
+                    book_genre = book_genre.strip()
 
-                if book_genre not in genres_per_book:
-                    genres_per_book.append(book_genre)
-                    genre_ranking[book_genre] = genre_ranking.get(book_genre, 0) + 1
+                    if book_genre not in genres_per_book:
+                        genres_per_book.append(book_genre)
+                        genre_ranking[book_genre] = genre_ranking.get(book_genre, 0) + 1
 
-        # we want to grab the most common genre.
-        most_common_genre: str = None
-        highest_genre_count: int = 0
-        for genre, count in genre_ranking.items():
-            if count > highest_genre_count and genre != "General": #exclude general genre
-                highest_genre_count = count
-                most_common_genre = genre
+    # we want to grab the most common genre.
+    most_common_genre: str = "Fiction"  # Default fallback
+    highest_genre_count: int = 0
+    for genre, count in genre_ranking.items():
+        if count > highest_genre_count and genre != "General": #exclude general genre
+            highest_genre_count = count
+            most_common_genre = genre
 
     # search books by genre:
     get_recommended_books = requests.get(f'https://www.googleapis.com/books/v1/volumes?q=subject:"{most_common_genre}"&printType=books&projection=full')
