@@ -1,0 +1,130 @@
+body {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  margin: 0;
+  padding: 0;
+  background: #23201a;
+  color: #e9e4d0;
+  min-height: 100vh;
+}
+
+h1 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-top: 40px;
+  letter-spacing: 2px;
+  color: #c9a66b;
+  text-shadow: 0 2px 8px #1a1813;
+}
+
+#search-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 40px 0 20px 0;
+}
+
+#search-input {
+  width: 320px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 6px 0 0 6px;
+  background: #2d2922;
+  color: #e9e4d0;
+  font-size: 1.1rem;
+  outline: none;
+  box-shadow: 0 2px 8px #18161233;
+}
+
+#search-btn {
+  padding: 10px 22px;
+  border: none;
+  border-radius: 0 6px 6px 0;
+  background: #c9a66b;
+  color: #23201a;
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px #18161233;
+}
+
+#search-btn:hover {
+  background: #b48a4a;
+}
+
+#results-section, #reviews-section {
+  background: #28251d;
+  padding: 28px 32px;
+  border-radius: 12px;
+  margin: 30px auto 0 auto;
+  max-width: 600px;
+  box-shadow: 0 4px 24px #18161255;
+  border: 1.5px solid #c9a66b33;
+}
+
+h2 {
+  color: #b48a4a;
+  font-size: 1.4rem;
+  margin-bottom: 18px;
+  font-family: 'Georgia', serif;
+  letter-spacing: 1px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 18px;
+  background: #23201a;
+  border-left: 4px solid #c9a66b;
+  padding: 14px 18px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px #18161222;
+  transition: background 0.2s;
+}
+
+li:hover {
+  background: #2d2922;
+}
+
+button {
+  cursor: pointer;
+  background: #c9a66b;
+  color: #23201a;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-size: 1rem;
+  font-family: 'Georgia', serif;
+  font-weight: bold;
+  margin-top: 10px;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px #18161233;
+}
+
+button:hover {
+  background: #b48a4a;
+}
+
+#reviews-section {
+  display: none;
+}
+
+#book-title {
+  color: #e9e4d0;
+  font-style: italic;
+}
+#saved-books-section h4 {
+  color: #c9a66b;
+  font-family: 'Georgia', serif;
+  margin-bottom: 8px;
+}
+
+#saved-books-section ul {
+  min-height: 60px;
+  background: #2d2922;
+  border-radius: 8px;
+  padding: 10px;
+}

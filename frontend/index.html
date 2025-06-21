@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BookBuddy Frontend</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="login-section" style="text-align:center; margin-top:30px;">
+    <input type="text" id="username-input" placeholder="Enter your username..." style="padding:10px; width:220px; border-radius:5px;">
+    <button id="login-btn">Login</button>
+  </div>
+  
+  <div id="user-section" style="display:none;">
+    <h2 style="text-align:center;">Welcome, <span id="current-user"></span>!
+  <button id="logout-btn" style="margin-left:24px; padding:4px 12px; font-size:0.95rem;">Logout</button> <span id="current-user"></span>!</h2>
+    
+    <div id="top-rated-section" style="margin: 24px auto; max-width: 650px;">
+      <h3>Top Rated Books</h3>
+      <ul id="top-rated-list"></ul>
+    </div>
+    
+    <div id="saved-books-section" style="margin: 24px auto; max-width: 650px;">
+      <h3>Your Saved Books</h3>
+      <div style="display:flex; gap:24px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:180px;">
+          <h4>Favorites</h4>
+          <ul id="favorites-list"></ul>
+        </div>
+        <div style="flex:1; min-width:180px;">
+          <h4>Read</h4>
+          <ul id="read-list"></ul>
+        </div>
+        <div style="flex:1; min-width:180px;">
+          <h4>Want to Read</h4>
+          <ul id="want-list"></ul>
+        </div>
+      </div>
+    </div>
+    
+    <div id="search-section" style="margin-top:30px;">
+      <input type="text" id="search-input" placeholder="Search for books by title...">
+      <button id="search-btn">Search</button>
+    </div>
+    
+    <div id="results-section">
+      <h2>Search Results</h2>
+      <ul id="book-list"></ul>
+    </div>
+    
+    <div id="reviews-section" style="display:none;">
+      <h2>Reviews for <span id="book-title"></span></h2>
+      <ul id="review-list"></ul>
+      <button id="close-reviews">Close</button>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+
+</html>

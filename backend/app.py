@@ -874,7 +874,7 @@ def get_sorted_reviews() -> Any:
     
     reviews = Review.query.order_by(type_order).all()
 
-    return jsonify([{"user": review.user, "rating":review.rating, "message":review.message, "date":review.date.isoformat()} for review in reviews]) 
+    return jsonify([{"user": review.user, "rating":review.rating, "message":review.message, "date":review.date.isoformat(), "book_id":review.book_id} for review in reviews]) 
 
 
 @app.route("/reviews_book/<string:book_id>", methods=["GET"])
