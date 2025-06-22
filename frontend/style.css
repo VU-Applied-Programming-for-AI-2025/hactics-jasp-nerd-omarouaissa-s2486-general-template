@@ -149,9 +149,9 @@ li:hover {
 
 /* Thumbnails and images */
 img, .bookpage-thumb, .bookpage-recommend-thumb {
-  box-shadow: 0 2px 8px #18140e55, 0 0 0 2px #bfa05a22 inset;
+  
   border-radius: 8px;
-  background: #18140e;
+  
 }
 
 /* Chat section */
@@ -281,7 +281,7 @@ button {
   font-size: 1rem;
   font-family: 'Georgia', serif;
   font-weight: bold;
-  margin-top: 10px;
+  margin-top: 0px;
   transition: background 0.2s;
   box-shadow: 0 2px 8px #18161233;
 }
