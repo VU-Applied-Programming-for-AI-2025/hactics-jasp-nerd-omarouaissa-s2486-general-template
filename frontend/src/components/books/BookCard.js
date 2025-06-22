@@ -27,6 +27,9 @@ const BookCard = ({ book, showActions = true, className = '', removeFromCollecti
   const authorNames = authors?.join(', ') || 'Unknown Author';
   const publishedYear = publishedDate ? new Date(publishedDate).getFullYear() : 'Unknown';
 
+  // Default book cover placeholder
+  const defaultCover = '/placeholder-book.svg';
+
   const handleAddToList = async (listType) => {
     if (!isAuthenticated) {
       toast.error('Please login to manage your book lists');
@@ -136,11 +139,11 @@ const BookCard = ({ book, showActions = true, className = '', removeFromCollecti
         <div className="flex-shrink-0">
           <Link to={`/book/${id}`}>
             <img
-              src={coverImage || '/placeholder-book.png'}
+              src={coverImage || defaultCover}
               alt={title}
               className="w-20 h-28 object-cover rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
               onError={(e) => {
-                e.target.src = '/placeholder-book.png';
+                e.target.src = defaultCover;
               }}
             />
           </Link>

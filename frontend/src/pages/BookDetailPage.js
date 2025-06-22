@@ -172,6 +172,9 @@ const BookDetailPage = () => {
   const publishedYear = publishedDate ? new Date(publishedDate).getFullYear() : 'Unknown';
   const reviews = reviewsData?.reviews || [];
 
+  // Default book cover placeholder
+  const defaultCover = '/placeholder-book.svg';
+
   return (
     <div className="space-y-8">
       {/* Back Button */}
@@ -189,11 +192,11 @@ const BookDetailPage = () => {
           {/* Book Cover */}
           <div className="lg:col-span-1">
             <img
-              src={coverImage || '/placeholder-book.png'}
+              src={coverImage || defaultCover}
               alt={title}
               className="w-full max-w-sm mx-auto rounded-lg shadow-md"
               onError={(e) => {
-                e.target.src = '/placeholder-book.png';
+                e.target.src = defaultCover;
               }}
             />
           </div>

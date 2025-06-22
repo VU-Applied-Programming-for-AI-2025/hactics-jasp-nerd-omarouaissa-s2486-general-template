@@ -8,6 +8,9 @@ const BookModal = ({ book, open, onClose }) => {
   const { title, authors, imageLinks, description, averageRating, ratingsCount } = volumeInfo;
   const coverImage = imageLinks?.thumbnail || imageLinks?.smallThumbnail;
   const authorNames = authors?.join(', ') || 'Unknown Author';
+  
+  // Default book cover placeholder
+  const defaultCover = '/placeholder-book.svg';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
@@ -20,10 +23,10 @@ const BookModal = ({ book, open, onClose }) => {
         </button>
         <div className="flex space-x-6">
           <img
-            src={coverImage || '/placeholder-book.png'}
+            src={coverImage || defaultCover}
             alt={title}
             className="w-28 h-40 object-cover rounded-lg shadow"
-            onError={e => { e.target.src = '/placeholder-book.png'; }}
+            onError={e => { e.target.src = defaultCover; }}
           />
           <div className="flex-1 min-w-0">
             <h2 className="text-2xl font-bold text-book-900 mb-2">{title}</h2>
