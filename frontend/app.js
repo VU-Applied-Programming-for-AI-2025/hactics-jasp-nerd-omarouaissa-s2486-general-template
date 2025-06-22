@@ -44,7 +44,35 @@ function addBookToList(book, listId) {
   const list = document.getElementById(listId);
   const li = document.createElement('li');
   const title = book.volumeInfo?.title || 'No Title';
-  li.textContent = title;
+
+  // Get thumbnail or placeholder
+  let imgSrc = "images/placeholder.jpg";
+  if (book.volumeInfo?.imageLinks?.thumbnail) {
+    imgSrc = book.volumeInfo.imageLinks.thumbnail.replace(/^http:\/\//i, 'https://');
+  }
+
+  // Create image element
+  const img = document.createElement('img');
+  img.src = imgSrc;
+  img.alt = title;
+  img.style.width = "36px";
+  img.style.height = "54px";
+  img.style.objectFit = "cover";
+  img.style.marginRight = "12px";
+  img.style.verticalAlign = "middle";
+  img.style.borderRadius = "4px";
+  img.style.boxShadow = "0 2px 8px #18161222";
+
+  // Create title span
+  const titleSpan = document.createElement('span');
+  titleSpan.textContent = title;
+  titleSpan.style.verticalAlign = "middle";
+  titleSpan.style.fontSize = "1.05rem";
+  titleSpan.style.fontWeight = "bold";
+
+  li.appendChild(img);
+  li.appendChild(titleSpan);
+
   li.style.cursor = 'pointer';
   li.onclick = () => {
     window.location.href = `book.html?id=${encodeURIComponent(book.id)}`;
@@ -323,5 +351,41 @@ window.onload = function() {
   document.getElementById('search-input').value = '';
 };
 
-  // (Any other bindings can go here)
+  // Gemini Chat logic
+const geminiChatForm = document.getElementById('gemini-chat-form');
+const geminiChatInput = document.getElementById('gemini-chat-input');
+const geminiChatLog = document.getElementById('gemini-chat-log');
+
+if (geminiChatForm && geminiChatInput && geminiChatLog) {
+  geminiChatForm.onsubmit = async function(e) {
+    e.preventDefault();
+    const message = geminiChatInput.value.trim();
+    if (!message) return;
+    geminiChatLog.innerHTML += `<div style='margin-bottom:8px;'><strong>You:</strong> ${message}</div>`;
+    geminiChatInput.value = '';
+    geminiChatInput.disabled = true;
+    // Get user id
+    const userId = currentUser || localStorage.getItem('bookbuddy_user') || 'guest';
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, user_id: userId })
+      });
+      const data = await res.json();
+      if (data.response) {
+        geminiChatLog.innerHTML += `<div style='margin-bottom:12px; color:#ffe066;'><strong>BookBuddy:</strong> ${data.response}</div>`;
+      } else {
+        geminiChatLog.innerHTML += `<div style='color:#b48a4a;'>No response from BookBuddy.</div>`;
+      }
+    } catch (e) {
+      geminiChatLog.innerHTML += `<div style='color:#b48a4a;'>Error: ${e.message}</div>`;
+    }
+    geminiChatInput.disabled = false;
+    geminiChatInput.focus();
+    geminiChatLog.scrollTop = geminiChatLog.scrollHeight;
+  };
+}
+
+// (Any other bindings can go here)
 };

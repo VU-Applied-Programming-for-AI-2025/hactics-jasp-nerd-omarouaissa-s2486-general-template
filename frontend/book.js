@@ -167,6 +167,7 @@ async function loadBook() {
     if (!user) { alert('Please login on the main page first.'); return; }
     await fetch(`${BACKEND_URL}/favorites/${encodeURIComponent(user)}/add/${bookId}`, { method: 'POST' });
     alert('Book added to Favorites!');
+    loadRecommendedBooks(user); // Refresh recommendations
   };
   document.getElementById('add-read').onclick = async () => {
     if (!user) { alert('Please login on the main page first.'); return; }

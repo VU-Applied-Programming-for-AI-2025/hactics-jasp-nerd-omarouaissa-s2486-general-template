@@ -13,48 +13,60 @@
   
   <div id="user-section" style="display:none;">
     <h2 style="text-align:center;">Welcome, <span id="current-user"></span>!
-  <button id="logout-btn" style="margin-left:24px; padding:4px 12px; font-size:0.95rem;">Logout</button> <span id="current-user"></span>!</h2>
-    
-    <div id="top-rated-section" style="margin: 24px auto; max-width: 650px;">
-      <h3>Top Rated Books</h3>
-      <ul id="top-rated-list"></ul>
-    </div>
-    
-    <div id="saved-books-section" style="margin: 24px auto; max-width: 650px;">
-      <h3>Your Saved Books</h3>
-      <div style="display:flex; gap:24px; flex-wrap:wrap;">
-        <div style="flex:1; min-width:180px;">
-          <h4>Favorites</h4>
-          <ul id="favorites-list"></ul>
-        </div>
-        <div style="flex:1; min-width:180px;">
-          <h4>Read</h4>
-          <ul id="read-list"></ul>
-        </div>
-        <div style="flex:1; min-width:180px;">
-          <h4>Want to Read</h4>
-          <ul id="want-list"></ul>
+      <button id="logout-btn" style="margin-left:24px; padding:4px 12px; font-size:0.95rem;">Logout</button>
+    </h2>
+    <div class="index-main-flex">
+      <!-- LEFT COLUMN: Saved Books -->
+      <div class="index-left-box">
+        <h3>Your Saved Books</h3>
+        <div class="saved-books-flex">
+          <div class="saved-books-section">
+            <h4>Favorites</h4>
+            <ul id="favorites-list"></ul>
+          </div>
+          <div class="saved-books-section">
+            <h4>Read</h4>
+            <ul id="read-list"></ul>
+          </div>
+          <div class="saved-books-section">
+            <h4>Want to Read</h4>
+            <ul id="want-list"></ul>
+          </div>
         </div>
       </div>
-    </div>
-    
-    <div id="search-section" style="margin-top:30px;">
-      <input type="text" id="search-input" placeholder="Search for books by title...">
-      <button id="search-btn">Search</button>
-    </div>
-    
-    <div id="results-section">
-      <h2>Search Results</h2>
-      <ul id="book-list"></ul>
-    </div>
-    
-    <div id="reviews-section" style="display:none;">
-      <h2>Reviews for <span id="book-title"></span></h2>
-      <ul id="review-list"></ul>
-      <button id="close-reviews">Close</button>
+      <!-- CENTER COLUMN: Search -->
+      <div class="index-center-box">
+        <div id="search-section">
+          <input type="text" id="search-input" placeholder="Search for books by title...">
+          <button id="search-btn">Search</button>
+        </div>
+        <div id="results-section">
+          <h2>Search Results</h2>
+          <ul id="book-list"></ul>
+        </div>
+        <div id="reviews-section" style="display:none;">
+          <h2>Reviews for <span id="book-title"></span></h2>
+          <ul id="review-list"></ul>
+          <button id="close-reviews">Close</button>
+        </div>
+      </div>
+      <!-- RIGHT COLUMN: Top Rated & Gemini Chat -->
+      <div class="index-right-box">
+        <div id="top-rated-section">
+          <h3>Top Rated Books</h3>
+          <ul id="top-rated-list"></ul>
+        </div>
+        <div id="gemini-chat-section">
+          <h3 style="color:#b48a4a;">BookBuddy Chat (Gemini)</h3>
+          <div id="gemini-chat-log"></div>
+          <form id="gemini-chat-form">
+            <input type="text" id="gemini-chat-input" placeholder="Ask BookBuddy anything...">
+            <button type="submit">Send</button>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
   <script src="app.js"></script>
 </body>
-
 </html>
