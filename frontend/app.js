@@ -312,18 +312,39 @@ window.onload = function() {
   }
 
   document.getElementById('login-btn').onclick = async function() {
-    const username = document.getElementById('username-input').value.trim();
-    if (!username) return;
-    currentUser = username;
-    localStorage.setItem('bookbuddy_user', currentUser);
-    // Create user lists in backend if not exist
-    const body = JSON.stringify({ user: currentUser, book_list_id: { list: [] } });
-    await fetch(`${BACKEND_URL}/favorites`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
-    await fetch(`${BACKEND_URL}/read_books`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
-    await fetch(`${BACKEND_URL}/want_to_reads`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
-    showUserSection();
-    loadSavedBooks();
-  };
+  const username = document.getElementById('username-input').value.trim();
+  if (!username) return;
+  // Check if user exists
+  let exists = false;
+  try {
+    const res = await fetch(`${BACKEND_URL}/favorites/${encodeURIComponent(username)}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.user === username) exists = true;
+    }
+  } catch (e) {}
+  // If not, create user (favorites, read, want-to-read)
+  if (!exists) {
+    await fetch(`${BACKEND_URL}/favorites`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user: username, book_list_id: [] })
+    });
+    await fetch(`${BACKEND_URL}/read_books`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user: username, book_list_id: [] })
+    });
+    await fetch(`${BACKEND_URL}/want_to_reads`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user: username, book_list_id: [] })
+    });
+  }
+  // Set user in localStorage and reload
+  localStorage.setItem('bookbuddy_user', username);
+  window.location.reload();
+};
 
   // Move your search button binding here too:
   document.getElementById('search-btn').onclick = async function() {
