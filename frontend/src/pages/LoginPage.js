@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
-import { BookOpen, User, Mail } from 'lucide-react';
+import { BookOpen, User } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const LoginPage = () => {
@@ -10,7 +10,6 @@ const LoginPage = () => {
   const [formData, setFormData] = useState({
     id: '',
     name: '',
-    email: '',
   });
 
   const handleSubmit = (e) => {
@@ -26,17 +25,10 @@ const LoginPage = () => {
       return;
     }
 
-    // Simple validation for email format
-    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-      toast.error('Please enter a valid email address');
-      return;
-    }
-
     // Create user object
     const userData = {
       id: formData.id.trim(),
       name: formData.name.trim(),
-      email: formData.email.trim() || null,
     };
 
     // Login user
@@ -110,28 +102,6 @@ const LoginPage = () => {
               />
             </div>
 
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-book-700 mb-2">
-                Email Address
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-book-400 w-5 h-5" />
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="Enter your email (optional)"
-                  className="w-full pl-10 pr-3 py-2 input-field"
-                />
-              </div>
-              <p className="mt-1 text-xs text-book-500">
-                Optional - for future features and notifications
-              </p>
-            </div>
-
             {/* Submit Button */}
             <div>
               <button
@@ -158,7 +128,6 @@ const LoginPage = () => {
                       setFormData({
                         id: user.id,
                         name: user.name,
-                        email: `${user.id}@example.com`,
                       });
                     }}
                     className="w-full text-left p-2 rounded border border-book-200 hover:bg-book-50 transition-colors duration-200"

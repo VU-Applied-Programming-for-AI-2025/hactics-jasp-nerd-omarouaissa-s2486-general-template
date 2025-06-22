@@ -4,6 +4,55 @@ import { chatAPI } from '../services/api';
 import { MessageSquare, Send, Loader, Bot, User } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+// Simple Markdown parser without external libraries
+const parseMarkdown = (text) => {
+  if (!text) return '';
+  
+  let html = text
+    // Escape HTML characters
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    
+    // Headers
+    .replace(/^### (.*$)/gim, '<h3 class="text-lg font-semibold mb-2">$1</h3>')
+    .replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold mb-3">$1</h2>')
+    .replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold mb-4">$1</h1>')
+    
+    // Bold and italic
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
+    .replace(/__(.*?)__/g, '<strong class="font-semibold">$1</strong>')
+    .replace(/_(.*?)_/g, '<em class="italic">$1</em>')
+    
+    // Code blocks
+    .replace(/```([\s\S]*?)```/g, '<pre class="bg-gray-100 p-3 rounded text-sm font-mono overflow-x-auto my-2"><code>$1</code></pre>')
+    .replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">$1</code>')
+    
+    // Links
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 hover:text-blue-800 underline" target="_blank" rel="noopener noreferrer">$1</a>')
+    
+    // Lists
+    .replace(/^\* (.*$)/gim, '<li class="ml-4">$1</li>')
+    .replace(/^- (.*$)/gim, '<li class="ml-4">$1</li>')
+    .replace(/^\d+\. (.*$)/gim, '<li class="ml-4">$1</li>')
+    
+    // Line breaks
+    .replace(/\n\n/g, '</p><p class="mb-2">')
+    .replace(/\n/g, '<br>');
+  
+  // Wrap in paragraph tags
+  html = `<p class="mb-2">${html}</p>`;
+  
+  // Fix list formatting
+  html = html.replace(/<p class="mb-2">(<li.*?)<\/p>/g, '<ul class="list-disc list-inside mb-2">$1</ul>');
+  html = html.replace(/<\/ul><ul class="list-disc list-inside mb-2">/g, '');
+  
+  return html;
+};
+
 const ChatPage = () => {
   const { currentUser, isAuthenticated } = useUser();
   const [messages, setMessages] = useState([]);
@@ -162,7 +211,14 @@ const ChatPage = () => {
                       <User className="w-4 h-4 mt-1 flex-shrink-0" />
                     )}
                     <div className="flex-1">
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                      {message.type === 'ai' ? (
+                        <div 
+                          className="text-sm prose prose-sm max-w-none"
+                          dangerouslySetInnerHTML={{ __html: parseMarkdown(message.content) }}
+                        />
+                      ) : (
+                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                      )}
                       <p className={`text-xs mt-2 ${
                         message.type === 'user' ? 'text-primary-100' : 'text-book-500'
                       }`}>
