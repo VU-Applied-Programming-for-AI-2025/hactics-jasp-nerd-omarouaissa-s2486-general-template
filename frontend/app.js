@@ -1,5 +1,6 @@
 const BACKEND_URL = "http://127.0.0.1:5000"; // Change if your backend runs elsewhere
 let currentUser = localStorage.getItem('bookbuddy_user') || null;
+let currentPage = 1;
 
 function showLogin() {
   document.getElementById('login-section').style.display = 'block';
@@ -145,8 +146,13 @@ function addBookToList(book, listId) {
 
 document.getElementById('search-btn').onclick = async function() {
   const query = document.getElementById('search-input').value.trim();
+  const orderBy = document.getElementById('order-by').value;
+  const lang = document.getElementById('lang').value;
   if (!query) return;
-  const res = await fetch(`${BACKEND_URL}/search?q=${encodeURIComponent(query)}`);
+  let url = `${BACKEND_URL}/search?q=${encodeURIComponent(query)}`;
+  if (orderBy) url += `&order_by=${encodeURIComponent(orderBy)}`;
+  if (lang) url += `&lang=${encodeURIComponent(lang)}`;
+  const res = await fetch(url);
   const books = await res.json();
   showBooks(books);
 };
@@ -312,101 +318,142 @@ window.onload = function() {
   }
 
   document.getElementById('login-btn').onclick = async function() {
-  const username = document.getElementById('username-input').value.trim();
-  if (!username) return;
-  // Check if user exists
-  let exists = false;
-  try {
-    const res = await fetch(`${BACKEND_URL}/favorites/${encodeURIComponent(username)}`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.user === username) exists = true;
+    const username = document.getElementById('username-input').value.trim();
+    if (!username) return;
+    // Check if user exists
+    let exists = false;
+    try {
+      const res = await fetch(`${BACKEND_URL}/favorites/${encodeURIComponent(username)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.user === username) exists = true;
+      }
+    } catch (e) {}
+    // If not, create user (favorites, read, want-to-read)
+    if (!exists) {
+      await fetch(`${BACKEND_URL}/favorites`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user: username, book_list_id: [] })
+      });
+      await fetch(`${BACKEND_URL}/read_books`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user: username, book_list_id: [] })
+      });
+      await fetch(`${BACKEND_URL}/want_to_reads`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user: username, book_list_id: [] })
+      });
     }
-  } catch (e) {}
-  // If not, create user (favorites, read, want-to-read)
-  if (!exists) {
-    await fetch(`${BACKEND_URL}/favorites`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user: username, book_list_id: [] })
-    });
-    await fetch(`${BACKEND_URL}/read_books`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user: username, book_list_id: [] })
-    });
-    await fetch(`${BACKEND_URL}/want_to_reads`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user: username, book_list_id: [] })
-    });
-  }
-  // Set user in localStorage and reload
-  localStorage.setItem('bookbuddy_user', username);
-  window.location.reload();
-};
+    // Set user in localStorage and reload
+    localStorage.setItem('bookbuddy_user', username);
+    window.location.reload();
+  };
 
-  // Move your search button binding here too:
-  document.getElementById('search-btn').onclick = async function() {
+  document.getElementById('search-btn').onclick = function() {
     if (!currentUser) {
       alert("Please login with a username first.");
       return;
     }
-    const query = document.getElementById('search-input').value.trim();
-    if (!query) return;
-    const res = await fetch(`${BACKEND_URL}/search?q=${encodeURIComponent(query)}`);
-    const books = await res.json();
-    showBooks(books);
+    currentPage = 1;
+    runSearch(currentPage);
   };
-  document.getElementById('logout-btn').onclick = function() {
-  localStorage.removeItem('bookbuddy_user');
-  currentUser = null;
-  showLogin();
 
-  // Optionally, clear lists and input fields:
-  document.getElementById('username-input').value = '';
-  document.getElementById('favorites-list').innerHTML = '';
-  document.getElementById('read-list').innerHTML = '';
-  document.getElementById('want-list').innerHTML = '';
-  document.getElementById('book-list').innerHTML = '';
-  document.getElementById('search-input').value = '';
-};
+  document.getElementById('logout-btn').onclick = function() {
+    localStorage.removeItem('bookbuddy_user');
+    currentUser = null;
+    showLogin();
+    // Optionally, clear lists and input fields:
+    document.getElementById('username-input').value = '';
+    document.getElementById('favorites-list').innerHTML = '';
+    document.getElementById('read-list').innerHTML = '';
+    document.getElementById('want-list').innerHTML = '';
+    document.getElementById('book-list').innerHTML = '';
+    document.getElementById('search-input').value = '';
+  };
+
+  document.getElementById('next-page').onclick = function() {
+    currentPage++;
+    runSearch(currentPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  document.getElementById('prev-page').onclick = function() {
+    if (currentPage > 1) {
+      currentPage--;
+      runSearch(currentPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  // Optionally, update page indicator on load
+  updatePageIndicator();
 
   // Gemini Chat logic
-const geminiChatForm = document.getElementById('gemini-chat-form');
-const geminiChatInput = document.getElementById('gemini-chat-input');
-const geminiChatLog = document.getElementById('gemini-chat-log');
-
-if (geminiChatForm && geminiChatInput && geminiChatLog) {
-  geminiChatForm.onsubmit = async function(e) {
-    e.preventDefault();
-    const message = geminiChatInput.value.trim();
-    if (!message) return;
-    geminiChatLog.innerHTML += `<div style='margin-bottom:8px;'><strong>You:</strong> ${message}</div>`;
-    geminiChatInput.value = '';
-    geminiChatInput.disabled = true;
-    // Get user id
-    const userId = currentUser || localStorage.getItem('bookbuddy_user') || 'guest';
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, user_id: userId })
-      });
-      const data = await res.json();
-      if (data.response) {
-        geminiChatLog.innerHTML += `<div style='margin-bottom:12px; color:#ffe066;'><strong>BookBuddy:</strong> ${data.response}</div>`;
-      } else {
-        geminiChatLog.innerHTML += `<div style='color:#b48a4a;'>No response from BookBuddy.</div>`;
+  const geminiChatForm = document.getElementById('gemini-chat-form');
+  const geminiChatInput = document.getElementById('gemini-chat-input');
+  const geminiChatLog = document.getElementById('gemini-chat-log');
+  if (geminiChatForm && geminiChatInput && geminiChatLog) {
+    geminiChatForm.onsubmit = async function(e) {
+      e.preventDefault();
+      const message = geminiChatInput.value.trim();
+      if (!message) return;
+      geminiChatLog.innerHTML += `<div style='margin-bottom:8px;'><strong>You:</strong> ${message}</div>`;
+      geminiChatInput.value = '';
+      geminiChatInput.disabled = true;
+      // Get user id
+      const userId = currentUser || localStorage.getItem('bookbuddy_user') || 'guest';
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message, user_id: userId })
+        });
+        const data = await res.json();
+        if (data.response) {
+          geminiChatLog.innerHTML += `<div style='margin-bottom:12px; color:#ffe066;'><strong>BookBuddy:</strong> ${data.response}</div>`;
+        } else {
+          geminiChatLog.innerHTML += `<div style='color:#b48a4a;'>No response from BookBuddy.</div>`;
+        }
+      } catch (e) {
+        geminiChatLog.innerHTML += `<div style='color:#b48a4a;'>Error: ${e.message}</div>`;
       }
-    } catch (e) {
-      geminiChatLog.innerHTML += `<div style='color:#b48a4a;'>Error: ${e.message}</div>`;
-    }
-    geminiChatInput.disabled = false;
-    geminiChatInput.focus();
-    geminiChatLog.scrollTop = geminiChatLog.scrollHeight;
-  };
+      geminiChatInput.disabled = false;
+      geminiChatInput.focus();
+      geminiChatLog.scrollTop = geminiChatLog.scrollHeight;
+    };
+  }
+
+  // Filter toggle logic
+  const toggleFiltersBtn = document.getElementById('toggle-filters');
+  const filtersBar = document.getElementById('filters-bar');
+  if (toggleFiltersBtn && filtersBar) {
+    toggleFiltersBtn.onclick = function() {
+      if (filtersBar.style.display === 'none' || filtersBar.style.display === '') {
+        filtersBar.style.display = 'flex';
+      } else {
+        filtersBar.style.display = 'none';
+      }
+    };
+  }
+};
+
+function updatePageIndicator() {
+  document.getElementById('page-indicator-top').textContent = `Page ${currentPage}`;
+  document.getElementById('page-indicator-bottom').textContent = `Page ${currentPage}`;
 }
 
-// (Any other bindings can go here)
-};
+async function runSearch(page = 1) {
+  const query = document.getElementById('search-input').value.trim();
+  const orderBy = document.getElementById('order-by').value;
+  const lang = document.getElementById('lang').value;
+  if (!query) return;
+  let url = `${BACKEND_URL}/search?q=${encodeURIComponent(query)}&page=${page}`;
+  if (orderBy) url += `&order_by=${encodeURIComponent(orderBy)}`;
+  if (lang) url += `&lang=${encodeURIComponent(lang)}`;
+  const res = await fetch(url);
+  const books = await res.json();
+  showBooks(books);
+  updatePageIndicator();
+}
