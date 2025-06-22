@@ -260,7 +260,7 @@ def add_book_id_to_favorites(user_id: str, book_id: str) -> Any:
         return jsonify({'error': 'user not found'}), 404
 
 
-@app.route("/favorites/<int:user_id>/delete/<string:book_id>", methods=["POST"])
+@app.route("/favorites/<string:user_id>/delete/<string:book_id>", methods=["POST"])
 def delete_book_id_to_favorites(user_id: int, book_id: str) -> Any:
     '''
     The post request does not need body information, the book_id is given in the url of the request

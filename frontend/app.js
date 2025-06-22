@@ -64,8 +64,15 @@ function addBookToList(book, listId) {
     delBtn.onclick = async (e) => {
       e.stopPropagation();
       const user = localStorage.getItem('bookbuddy_user');
-      await fetch(`${BACKEND_URL}/favorites/${encodeURIComponent(user)}/delete/${book.id}`, { method: 'POST' });
-      li.remove();
+      if (!user) return;
+      // Try both string and int user id routes for compatibility
+      let resp = await fetch(`${BACKEND_URL}/favorites/${encodeURIComponent(user)}/delete/${encodeURIComponent(book.id)}`, { method: 'POST' });
+      if (!resp.ok) {
+        // fallback: try int route (legacy)
+        resp = await fetch(`${BACKEND_URL}/favorites/${encodeURIComponent(Number(user))}/delete/${encodeURIComponent(book.id)}`, { method: 'POST' });
+      }
+      if (resp.ok) li.remove();
+      else alert('Failed to remove favorite.');
     };
     li.appendChild(delBtn);
   } else if (listId === 'read-list') {

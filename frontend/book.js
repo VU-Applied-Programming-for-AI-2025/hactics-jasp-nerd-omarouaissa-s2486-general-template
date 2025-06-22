@@ -49,103 +49,93 @@ async function loadBook() {
     el.style.zIndex = 1;
   });
 
+  // New layout: main flex container
   detailsDiv.innerHTML = `
-    <div class="sidebar">
-      <a href="index.html">Home</a>
-      <a href="#">About</a>
-      <a href="#">Contact</a>
-      <div class="sidebar-dropdown">
-        <button id="dropdown-btn" class="sidebar-dropbtn">Reviews &#9654;</button>
-        <div id="dropdown-content" class="sidebar-dropdown-content">
-          <button id="open-review-popup" class="popup-btn">Leave a Review</button>
-          <button id="open-reviews-popup" class="popup-btn">See All Reviews</button>
+    <div class="bookpage-main-flex">
+      <div class="bookpage-left">
+        <div class="bookpage-title-thumb-row">
+          <div class="bookpage-title-authors">
+            <h1 class="bookpage-title">${title}</h1>
+            <div class="bookpage-authors">by ${authors}</div>
+          </div>
+          <img src="${imgSrc}" alt="${title}" class="bookpage-thumb">
+        </div>
+        <div class="bookpage-list-btns">
+          <button id="add-favorite" class="bookpage-list-btn">Favorites</button>
+          <button id="add-want" class="bookpage-list-btn">Want to Read</button>
+          <button id="add-read" class="bookpage-list-btn">Read</button>
+        </div>
+        <div class="bookpage-synopsis bookpage-synopsis-centered">
+          <h3>Synopsis</h3>
+          <p>${description}</p>
         </div>
       </div>
-      <div class="sidebar-actions">
-        <button id="add-favorite" class="sidebar-action-btn">Add to Favorites</button>
-        <button id="add-read" class="sidebar-action-btn">Mark as Read</button>
-        <button id="add-want" class="sidebar-action-btn">Want to Read</button>
-      </div>
-    </div>
-    <div class="book-main-layout">
-      <div class="book-main-left">
-        <img src="${imgSrc}" alt="${title}" class="book-main-cover">
-      </div>
-      <div class="book-main-right">
-        <h1>${title}</h1>
-        <h3>by <span class="author">${authors}</span></h3>
-        <div class="section">
-          <h4>Synopsis</h4>
-          <p class="description">${description}</p>
+      <div class="bookpage-right-box">
+        <div class="bookpage-review-btns">
+          <button id="open-review-popup" class="bookpage-review-btn">Leave Review</button>
+          <button id="open-reviews-popup" class="bookpage-review-btn">See All Reviews</button>
         </div>
-      </div>
-    </div>
-    <div id="review-popup" class="popup-modal">
-      <div class="popup-content">
-        <span class="close-popup" id="close-review-popup">&times;</span>
-        <h4>Leave a Review</h4>
-        <form id="review-form">
-          <input type="text" id="review-user" placeholder="Your name" required>
-          <select id="review-rating" required>
-            <option value="">Rating</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-          </select>
-          <textarea id="review-message" placeholder="Your review" required></textarea>
-          <button type="submit">Submit Review</button>
-        </form>
-        <div id="review-success" style="color:#b48a4a;margin-top:8px;display:none;">Review submitted!</div>
-      </div>
-    </div>
-    <div id="reviews-popup" class="popup-modal">
-      <div class="popup-content reviews-popup-content">
-        <span class="close-popup" id="close-reviews-popup">&times;</span>
-        <h4>Existing Reviews</h4>
-        <ul id="review-list"></ul>
+        <div id="review-popup" class="popup-modal">
+          <div class="popup-content">
+            <button class="close-popup" id="close-review-popup" type="button">×</button>
+            <h4>Leave a Review</h4>
+            <form id="review-form">
+              <input type="text" id="review-user" placeholder="Your name" required>
+              <select id="review-rating" required>
+                <option value="">Rating</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+              <textarea id="review-message" placeholder="Your review" required></textarea>
+              <button type="submit">Submit Review</button>
+            </form>
+            <div id="review-success" style="color:#b48a4a;margin-top:8px;display:none;">Review submitted!</div>
+          </div>
+        </div>
+        <div id="bookpage-reviews-list-box">
+          <ul id="review-list" class="bookpage-review-list"></ul>
+        </div>
+        <div id="bookpage-recommend-section" class="bookpage-recommend-section">
+          <h3>Recommended Books</h3>
+          <ul id="recommend-list" class="bookpage-recommend-list"></ul>
+        </div>
       </div>
     </div>
   `;
 
-  // Sidebar dropdown logic
-  const dropdownBtn = document.getElementById('dropdown-btn');
-  const dropdownContent = document.getElementById('dropdown-content');
-  dropdownBtn.onclick = (e) => {
-    e.stopPropagation();
-    dropdownContent.style.display = dropdownContent.style.display === 'flex' ? 'none' : 'flex';
-  };
-  document.body.onclick = (e) => {
-    if (!dropdownBtn.contains(e.target) && !dropdownContent.contains(e.target)) {
-      dropdownContent.style.display = 'none';
-    }
-  };
-
-  // Popup logic with toggle
+  // Popup logic
   const reviewPopup = document.getElementById('review-popup');
-  const reviewsPopup = document.getElementById('reviews-popup');
+  const openReviewBtn = document.getElementById('open-review-popup');
+  const closeReviewBtn = document.getElementById('close-review-popup');
   let reviewOpen = false;
-  let reviewsOpen = false;
-  document.getElementById('open-review-popup').onclick = (e) => {
+  openReviewBtn.onclick = (e) => {
     e.stopPropagation();
     reviewOpen = !reviewOpen;
     reviewPopup.style.display = reviewOpen ? 'block' : 'none';
-    if (reviewOpen) { reviewsPopup.style.display = 'none'; reviewsOpen = false; }
+    openReviewBtn.textContent = reviewOpen ? 'Close' : 'Leave Review';
   };
-  document.getElementById('close-review-popup').onclick = () => {
-    reviewPopup.style.display = 'none';
-    reviewOpen = false;
-  };
+  if (closeReviewBtn) {
+    closeReviewBtn.onclick = (e) => {
+      e.stopPropagation();
+      reviewPopup.style.display = 'none';
+      reviewOpen = false;
+      openReviewBtn.textContent = 'Leave Review';
+    };
+  }
+  document.addEventListener('click', function(event) {
+    if (reviewOpen && !reviewPopup.contains(event.target) && event.target !== openReviewBtn) {
+      reviewPopup.style.display = 'none';
+      reviewOpen = false;
+      openReviewBtn.textContent = 'Leave Review';
+    }
+  });
+
   document.getElementById('open-reviews-popup').onclick = (e) => {
     e.stopPropagation();
-    reviewsOpen = !reviewsOpen;
-    reviewsPopup.style.display = reviewsOpen ? 'block' : 'none';
-    if (reviewsOpen) { reviewPopup.style.display = 'none'; reviewOpen = false; loadReviews(bookId); }
-  };
-  document.getElementById('close-reviews-popup').onclick = () => {
-    reviewsPopup.style.display = 'none';
-    reviewsOpen = false;
+    loadReviews(bookId);
   };
 
   // Review form submission
@@ -188,6 +178,11 @@ async function loadBook() {
     await fetch(`${BACKEND_URL}/want_to_reads/${encodeURIComponent(user)}/add/${bookId}`, { method: 'POST' });
     alert('Book added to Want to Read!');
   };
+
+  // Load reviews immediately in the right box
+  loadReviews(bookId);
+  // Load recommended books below reviews (use user id)
+  loadRecommendedBooks(user);
 }
 
 async function loadReviews(bookId) {
@@ -207,6 +202,47 @@ async function loadReviews(bookId) {
       list.appendChild(li);
     });
   }
+}
+
+async function loadRecommendedBooks(user) {
+  const recommendList = document.getElementById('recommend-list');
+  if (!recommendList) return;
+  recommendList.innerHTML = '<li style="color:#b48a4a;">Loading...</li>';
+  let data;
+  try {
+    const res = await fetch(`${BACKEND_URL}/recommendations/${encodeURIComponent(user)}`);
+    data = await res.json();
+  } catch (e) {
+    recommendList.innerHTML = '<li style="color:#b48a4a;">Failed to load recommendations.</li>';
+    return;
+  }
+  const books = data.recommendations?.items || [];
+  if (!books.length) {
+    recommendList.innerHTML = '<li style="color:#b48a4a;">No recommendations found.</li>';
+    return;
+  }
+  recommendList.innerHTML = '';
+  books.slice(0, 6).forEach(book => {
+    const li = document.createElement('li');
+    const title = book.volumeInfo?.title || 'No Title';
+    let imgSrc = "images/placeholder.jpg";
+    if (book.volumeInfo?.imageLinks?.thumbnail) {
+      imgSrc = book.volumeInfo.imageLinks.thumbnail.replace(/^http:\/\//i, 'https://');
+    }
+    const img = document.createElement('img');
+    img.src = imgSrc;
+    img.alt = title;
+    img.className = 'bookpage-recommend-thumb';
+    const span = document.createElement('span');
+    span.textContent = title;
+    span.className = 'bookpage-recommend-title';
+    li.appendChild(img);
+    li.appendChild(span);
+    li.onclick = () => {
+      window.location.href = `book.html?id=${encodeURIComponent(book.id)}`;
+    };
+    recommendList.appendChild(li);
+  });
 }
 
 window.onload = loadBook;
