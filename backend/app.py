@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 import requests
 from sqlalchemy.orm.attributes import flag_modified
@@ -15,6 +16,7 @@ from urllib.parse import urlencode
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
 # Start gemini API with system prompt for book recommendations
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
@@ -259,8 +261,8 @@ def add_book_id_to_favorites(user_id: str, book_id: str) -> Any:
         return jsonify({'error': 'user not found'}), 404
 
 
-@app.route("/favorites/<int:user_id>/delete/<string:book_id>", methods=["POST"])
-def delete_book_id_to_favorites(user_id: int, book_id: str) -> Any:
+@app.route("/favorites/<string:user_id>/delete/<string:book_id>", methods=["POST"])
+def delete_book_id_to_favorites(user_id: str, book_id: str) -> Any:
     '''
     The post request does not need body information, the book_id is given in the url of the request
     '''
@@ -588,45 +590,48 @@ def get_book_by_id(book_id: str) -> Any:
 @app.route("/recommendations/<string:user_id>", methods=["GET"])
 def get_recommendations(user_id: str) -> Any:
     '''
-    Gets recommmendations for user. If user does not exist it will still return recommendations.
+    Gets recommendations for user. If user does not exist or has no specific favorite genres,
+    it will still return recommendations based on a default genre.
     '''
-    favorite_book_ids = Favorite.query.get(user_id)
+    favorite_obj = Favorite.query.get(user_id)
+    
+    # 1. Initialize most_common_genre with a strong default at the very beginning
+    # This is the crucial step to prevent UnboundLocalError
+    most_common_genre: str = "Fiction" # Or "Juvenile Fiction" if that's your preferred universal default
 
-    # if the user does not exist or does not have favorite books
-    if not favorite_book_ids:
-        standard_genre: str = "Juvenile Fiction"
-        get_recommended_books = requests.get(f'https://www.googleapis.com/books/v1/volumes?q=subject:"{standard_genre}"&printType=books&projection=full')
+    # Scenario 1: User does not exist or has no favorite books data in the DB
+    if not favorite_obj or not favorite_obj.book_list_id or not favorite_obj.book_list_id.get('list'):
+        # Keep consistent with your original "Juvenile Fiction" fallback for this path
+        standard_genre_for_no_favorites = "Juvenile Fiction" 
+        get_recommended_books_response = requests.get(f'https://www.googleapis.com/books/v1/volumes?q=subject:"{standard_genre_for_no_favorites}"&printType=books&projection=full')
 
-        return jsonify({"recommendations": get_recommended_books.json(), "genre": "Juvenile Fiction"})
+        # ... (error handling for Google API response) ...
 
-    favorites: list = []
+        return jsonify({"recommendations": get_recommended_books_response.json(), "genre": standard_genre_for_no_favorites})
+
+    # Scenario 2: User exists and has favorite books; proceed to calculate genre
     genre_ranking: dict = {}
 
-    for book_id in favorite_book_ids.book_list_id['list']:
-        book = get_book_by_id(book_id)
-        favorites.append(book)
+    for book_id in favorite_obj.book_list_id['list']: 
+        book_data = get_book_by_id(book_id) 
 
-        genres = book["volumeInfo"]["categories"]
-        genres_per_book: list = []
-        # we only want to get one of each genre per book.
-        for genre in genres:
-            book_genre_list = genre.split('/')
-            for book_genre in book_genre_list:
-                book_genre = book_genre.strip()
+        if book_data and "error" not in book_data and "volumeInfo" in book_data and "categories" in book_data["volumeInfo"]:
+            genres = book_data["volumeInfo"]["categories"]
+            genres_per_book: list = [] 
+            for genre_str in genres:
+                split_genres = [g.strip() for g in genre_str.split('/') if g.strip()]
+                for cleaned_genre in split_genres:
+                    if cleaned_genre and cleaned_genre not in genres_per_book and cleaned_genre != "General":
+                        genres_per_book.append(cleaned_genre)
+                        genre_ranking[cleaned_genre] = genre_ranking.get(cleaned_genre, 0) + 1
+        else:
+            print(f"Warning: Incomplete or invalid Google Books API data for favorited book ID: {book_id}")
 
-                if book_genre not in genres_per_book:
-                    genres_per_book.append(book_genre)
-                    genre_ranking[book_genre] = genre_ranking.get(book_genre, 0) + 1
-
-        # we want to grab the most common genre.
-        most_common_genre: str = None
-        highest_genre_count: int = 0
-        for genre, count in genre_ranking.items():
-            if count > highest_genre_count and genre != "General": #exclude general genre
-                highest_genre_count = count
-                most_common_genre = genre
-
-
+    # 2. Conditionally update most_common_genre ONLY if relevant genres were collected
+    if genre_ranking:
+        # Sort by count (descending), then by genre name (ascending) for consistency
+        sorted_genres = sorted(genre_ranking.items(), key=lambda item: (-item[1], item[0]))
+        most_common_genre = sorted_genres[0][0]
 
     # search books by genre:
     get_recommended_books = requests.get(f'https://www.googleapis.com/books/v1/volumes?q=subject:"{most_common_genre}"&printType=books&projection=full')
@@ -873,7 +878,7 @@ def get_sorted_reviews() -> Any:
     
     reviews = Review.query.order_by(type_order).all()
 
-    return jsonify([{"user": review.user, "rating":review.rating, "message":review.message, "date":review.date.isoformat()} for review in reviews]) 
+    return jsonify([{"id":Review.id, "user": review.user, "rating":review.rating, "message":review.message, "date":review.date.isoformat(), "book_id": Review.book_id} for review in reviews]) 
 
 
 @app.route("/reviews_book/<string:book_id>", methods=["GET"])
@@ -887,7 +892,7 @@ def get_reviews_by_book_id(book_id: str) -> Any:
     reviews_with_book_id: list = []
     for review in all_reviews:
         if review.book_id == book_id:
-            reviews_with_book_id.append({"user": review.user, "rating": review.rating, "message": review.message, "date": review.date, "book_id": review.book_id})
+            reviews_with_book_id.append({"id": review.id, "user": review.user, "rating": review.rating, "message": review.message, "date": review.date, "book_id": review.book_id})
 
     if reviews_with_book_id:
         return jsonify({"reviews": reviews_with_book_id})

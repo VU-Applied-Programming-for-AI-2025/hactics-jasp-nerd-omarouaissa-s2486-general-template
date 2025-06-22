@@ -1,4 +1,21 @@
 ### specify files and folders to exclude from version control ###
-output.json
-backend/__pycache__/app.cpython-310.pyc
-backend/tests/__pycache__/test_tests.cpython-310-pytest-7.4.4.pyc
+# stupid virtual environments
+.book/
+book/
+.venv/
+venv/
+
+# stupid pycache
+backend/tests/__pycache__/*
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# stupid macs
+.DS_Store
+*.log
+
+instance/
+*.db
+instance/bookbuddy.db
