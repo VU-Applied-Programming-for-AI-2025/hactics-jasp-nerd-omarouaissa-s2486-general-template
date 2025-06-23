@@ -1,5 +1,8 @@
 # BookBuddy - Book Recommendation System
 
+[Try it out here!](https://bookbuddy-copy.vercel.app/)
+https://bookbuddy-copy.vercel.app/
+
 ## Quick User Guide 📚
 
 **Getting Started:** Enter any User ID and name to sign in (try the demo users!)
