@@ -21,3 +21,4 @@ instance/
 instance/bookbuddy.db
 
 node_modules/
+.env
